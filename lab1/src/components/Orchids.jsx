@@ -1,15 +1,18 @@
+import { Col, Container, Row } from "react-bootstrap";
 import ListOfOrchids from "../shared/ListOfOrchids";
 import OrchidItem from "./OrchidItem";
 
 export default function Orchids() {
   return (
-    <div className="mx-auto max-w-7xl px-4 text-center">
-      <h1 className="text-3xl">Orchid List</h1>
-      <div className="grid mt-3 gap-4 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
+    <Container className="py-4">
+      <h1 className="text-center mb-4">Orchid List</h1>
+      <Row className="g-4">
         {ListOfOrchids.map((item) => (
-          <OrchidItem orchid={item} />
+          <Col key={item.id} xs={12} sm={6} md={4} lg={3}>
+            <OrchidItem orchid={item} />
+          </Col>
         ))}
-      </div>
-    </div>
+      </Row>
+    </Container>
   );
 }
