@@ -22,7 +22,7 @@ function App() {
       style={{
         backgroundColor: isDarkMode ? "#1a1a1a" : "#ffffff",
         color: isDarkMode ? "#ffffff" : "#212529",
-        transition: "background-color 0.3s ease, color 0.3s ease",
+        transition: "all 0.3s ease",
       }}
     >
       <Orchids

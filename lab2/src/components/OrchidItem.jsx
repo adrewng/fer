@@ -40,7 +40,7 @@ export default function OrchidItem({ orchid, handleOnClick, isDarkMode }) {
           }}
           onClick={() => handleOnClick(orchid)}
         >
-          <Button variant="light" size="lg" className="shadow">
+          <Button variant="light" size="lg">
             Detail
           </Button>
         </div>

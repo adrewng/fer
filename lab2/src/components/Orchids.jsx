@@ -5,9 +5,7 @@ import OrchidItem from "./OrchidItem";
 export default function Orchids({ handleOnClick, handleOnToggle, isDarkMode }) {
   const themeColors = {
     primary: isDarkMode ? "#1a1a1a" : "#ffffff",
-    secondary: isDarkMode ? "#2d2d2d" : "#f8f9fa",
     text: isDarkMode ? "#ffffff" : "#212529",
-    textSecondary: isDarkMode ? "#adb5bd" : "#6c757d",
     border: isDarkMode ? "#495057" : "#dee2e6",
   };
 
@@ -62,6 +60,7 @@ export default function Orchids({ handleOnClick, handleOnToggle, isDarkMode }) {
           </svg>
         )}
       </Button>
+
       <Row className="g-4">
         {ListOfOrchids.map((item) => (
           <Col key={item.id} xs={12} sm={6} md={4} lg={3}>
