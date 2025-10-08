@@ -1,8 +1,12 @@
 import { Button, Col, Container, Row } from "react-bootstrap";
-import ListOfOrchids from "../shared/ListOfOrchids";
 import OrchidItem from "./OrchidItem";
 
-export default function Orchids({ handleOnClick, handleOnToggle, isDarkMode }) {
+export default function Orchids({
+  handleOnClick,
+  handleOnToggle,
+  isDarkMode,
+  ListOfOrchids,
+}) {
   const themeColors = {
     primary: isDarkMode ? "#1a1a1a" : "#ffffff",
     text: isDarkMode ? "#ffffff" : "#212529",

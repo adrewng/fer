@@ -1,8 +1,6 @@
-// ListOfOrchids.js
-
 const ListOfOrchids = [
   {
-    id: "1",
+    id: 1,
     name: "Taichung Beauty",
     rating: 5,
     isSpecial: true,
@@ -10,9 +8,10 @@ const ListOfOrchids = [
     color: "pink",
     origin: "Taiwan",
     category: "Cattleya",
+    isNatural: false,
   },
   {
-    id: "2",
+    id: 2,
     name: "Phalaenopsis Amabilis",
     rating: 4,
     isSpecial: true,
@@ -21,9 +20,10 @@ const ListOfOrchids = [
     color: "white",
     origin: "Indonesia",
     category: "Phalaenopsis",
+    isNatural: true,
   },
   {
-    id: "3",
+    id: 3,
     name: "Dendrobium Nobile",
     rating: 4,
     isSpecial: false,
@@ -32,9 +32,10 @@ const ListOfOrchids = [
     color: "purple",
     origin: "Himalaya",
     category: "Dendrobium",
+    isNatural: true,
   },
   {
-    id: "4",
+    id: 4,
     name: "Cattleya Dowiana",
     rating: 5,
     isSpecial: true,
@@ -43,9 +44,10 @@ const ListOfOrchids = [
     color: "yellow",
     origin: "Costa Rica",
     category: "Cattleya",
+    isNatural: true,
   },
   {
-    id: "5",
+    id: 5,
     name: "Vanda Coerulea",
     rating: 5,
     isSpecial: true,
@@ -54,9 +56,10 @@ const ListOfOrchids = [
     color: "blue",
     origin: "India",
     category: "Vanda",
+    isNatural: true,
   },
   {
-    id: "6",
+    id: 6,
     name: "Oncidium Sharry Baby",
     rating: 4,
     isSpecial: false,
@@ -65,9 +68,10 @@ const ListOfOrchids = [
     color: "red",
     origin: "Hybrid",
     category: "Oncidium",
+    isNatural: false, // hybrid
   },
   {
-    id: "7",
+    id: 7,
     name: "Cymbidium Ensifolium",
     rating: 3,
     isSpecial: false,
@@ -76,9 +80,10 @@ const ListOfOrchids = [
     color: "green",
     origin: "China",
     category: "Cymbidium",
+    isNatural: true,
   },
   {
-    id: "8",
+    id: 8,
     name: "Paphiopedilum Rothschildianum",
     rating: 5,
     isSpecial: true,
@@ -87,9 +92,10 @@ const ListOfOrchids = [
     color: "striped",
     origin: "Borneo",
     category: "Paphiopedilum",
+    isNatural: true,
   },
   {
-    id: "9",
+    id: 9,
     name: "Miltonia Spectabilis",
     rating: 3,
     isSpecial: false,
@@ -98,9 +104,10 @@ const ListOfOrchids = [
     color: "purple",
     origin: "Brazil",
     category: "Miltonia",
+    isNatural: true,
   },
   {
-    id: "10",
+    id: 10,
     name: "Brassavola Nodosa",
     rating: 4,
     isSpecial: false,
@@ -109,9 +116,10 @@ const ListOfOrchids = [
     color: "white",
     origin: "Mexico",
     category: "Brassavola",
+    isNatural: true,
   },
   {
-    id: "11",
+    id: 11,
     name: "Epidendrum Radicans",
     rating: 3,
     isSpecial: false,
@@ -120,9 +128,10 @@ const ListOfOrchids = [
     color: "orange",
     origin: "Central America",
     category: "Epidendrum",
+    isNatural: true,
   },
   {
-    id: "12",
+    id: 12,
     name: "Coelogyne Cristata",
     rating: 4,
     isSpecial: false,
@@ -131,9 +140,10 @@ const ListOfOrchids = [
     color: "white",
     origin: "Himalaya",
     category: "Coelogyne",
+    isNatural: true,
   },
   {
-    id: "13",
+    id: 13,
     name: "Bulbophyllum Medusae",
     rating: 5,
     isSpecial: true,
@@ -142,9 +152,10 @@ const ListOfOrchids = [
     color: "white",
     origin: "Malaysia",
     category: "Bulbophyllum",
+    isNatural: true,
   },
   {
-    id: "14",
+    id: 14,
     name: "Stanhopea Tigrina",
     rating: 4,
     isSpecial: true,
@@ -153,9 +164,10 @@ const ListOfOrchids = [
     color: "yellow-brown",
     origin: "Mexico",
     category: "Stanhopea",
+    isNatural: true,
   },
   {
-    id: "15",
+    id: 15,
     name: "Zygopetalum Mackayi",
     rating: 3,
     isSpecial: false,
@@ -164,9 +176,10 @@ const ListOfOrchids = [
     color: "purple-green",
     origin: "Brazil",
     category: "Zygopetalum",
+    isNatural: true,
   },
   {
-    id: "16",
+    id: 16,
     name: "Gongora Galeata",
     rating: 3,
     isSpecial: false,
@@ -175,6 +188,7 @@ const ListOfOrchids = [
     color: "brown-yellow",
     origin: "Central America",
     category: "Gongora",
+    isNatural: true,
   },
 ];
 

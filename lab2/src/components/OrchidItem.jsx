@@ -1,7 +1,8 @@
 import { Badge, Button, Card, Col, Row } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import Star from "./Start";
 
-export default function OrchidItem({ orchid, handleOnClick, isDarkMode }) {
+export default function OrchidItem({ orchid, isDarkMode }) {
   const { id, name, image, rating, isSpecial, color, origin, category } =
     orchid;
 
@@ -33,7 +34,7 @@ export default function OrchidItem({ orchid, handleOnClick, isDarkMode }) {
             Special
           </Badge>
         )}
-        <div
+        {/* <div
           className="orchid-overlay"
           style={{
             backgroundColor: themeColors.overlayBg,
@@ -41,6 +42,16 @@ export default function OrchidItem({ orchid, handleOnClick, isDarkMode }) {
           onClick={() => handleOnClick(orchid)}
         >
           <Button variant="light" size="lg">
+            Detail
+          </Button>
+        </div> */}
+        <div
+          className="orchid-overlay"
+          style={{
+            backgroundColor: themeColors.overlayBg,
+          }}
+        >
+          <Button variant="light" size="lg" as={Link} to={`/detail/${id}`}>
             Detail
           </Button>
         </div>
