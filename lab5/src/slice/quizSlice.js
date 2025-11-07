@@ -49,8 +49,11 @@ const quizSlice = createSlice({
       const q = state.items.find((x) => x.id === id);
       if (!q || q.options.length <= 2) return;
       q.options.splice(index, 1);
-      // Nếu xóa correct option thì set nó về 0
-      if (q.correctIndex >= index) q.correctIndex = 0;
+      if (q.correctIndex === index) {
+        q.correctIndex = 0;
+      } else if (q.correctIndex > index) {
+        q.correctIndex -= 1;
+      }
     },
     addOption(state, action) {
       const { id } = action.payload;
@@ -93,11 +96,3 @@ export const {
 } = quizSlice.actions;
 
 export default quizSlice.reducer;
-
-export const selectQuestions = (s) => s.quiz.items;
-
-export const selectScore = (s) =>
-  s.quiz.items.reduce(
-    (acc, q) => acc + (q.selectedIndex === q.correctIndex ? 1 : 0),
-    0
-  );
