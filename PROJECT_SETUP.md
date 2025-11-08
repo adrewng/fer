@@ -1,47 +1,51 @@
-# Hướng dẫn Setup Project React với Vite
+# React Project Setup Guide with Vite
 
-## 📑 Mục lục (Table of Contents)
+## Table of Contents
 
-- [1. Cài đặt Dependencies](#1-cài-đặt-dependencies)
-- [2. Cấu trúc File](#2-cấu-trúc-file)
+- [1. Install Dependencies](#1-install-dependencies)
+- [2. File Structure](#2-file-structure)
   - [2.1. http.js - Axios Instance](#21-srcutilhttpjs---axios-instance)
   - [2.2. mockData.js - Mockup Data](#22-srcapimockdatajs---mockup-data)
   - [2.3. item.schema.js - Yup Validation](#23-srcschemaitemschemajs---yup-validation-schema)
 - [3. App.jsx - Router Configuration](#3-appjsx---router-configuration)
 - [4. Components](#4-components)
-  - [4.1. ConfirmDeleteModal](#41-srccomponentsconfirmdeletemodaljsx---modal-xác-nhận-xóa)
+  - [4.1. ConfirmDeleteModal](#41-srccomponentsconfirmdeletemodaljsx---delete-confirmation-modal)
   - [4.2. NavBar](#42-navbar)
-  - [4.3. CreateItemModal](#43-srccomponentscreateitemmodaljsx---modal-tạo-mới)
-  - [4.3. EditItemModal](#43-srccomponentsedititemmodaljsx---modal-chỉnh-sửa)
+  - [4.3. Toast](#43-srccomponentstoastjsx---toast-notification)
+  - [4.4. CreateItemModal](#44-srccomponentscreateitemmodaljsx---create-modal)
+  - [4.5. EditItemModal](#45-srccomponentsedititemmodaljsx---edit-modal)
 - [5. Pages](#5-pages)
-  - [5.1. HomePage (Grid & Table)](#51-srcpageshomepagejsx---trang-chủ-grid--table)
-  - [5.2. ItemDetailPage](#52-srcpagesitemdetailpagejsx---trang-chi-tiết)
-  - [5.3. CreateItemPage - RHF](#53-srcpagescreateitempagejsx---trang-tạo-mới-page-version---rhf)
-  - [5.4. CreateItemPage - FORMILK](#54-srcpagescreateitempagejsx---trang-tạo-mới-page-version---formilk)
-  - [5.5. EditItemPage - RHF](#55-srcpagesedititempagejsx---trang-chỉnh-sửa-page-version---rhf)
-  - [5.6. EditItemPage - FORMILK](#56-srcpagesedititempagejsx---trang-chỉnh-sửa-page-version---formilk)
-- [6. Bootstrap Templates](#6-bootstrap-templates---bộ-template-dán-là-dùng-jsx)
-  - [6.1. Grid cơ bản](#61-grid-cơ-bản)
-  - [6.2. Card grid](#62-card-grid-danh-sách-thẻ)
-  - [6.3. Bảng + thanh công cụ + phân trang](#63-bảng--thanh-công-cụ--phân-trang)
-  - [6.4. Form dọc (vertical)](#64-form-dọc-vertical)
-  - [6.5. Form ngang (horizontal)](#65-form-ngang-horizontal)
-  - [6.6. Modal chung (thêm/sửa)](#66-modal-chung-thêmsửa)
-  - [6.7. Modal xác nhận xóa](#67-modal-xác-nhận-xóa)
-- [7. Lưu Ý](#7-lưu-ý)
+  - [5.1. HomePage (Grid & Table)](#51-srcpageshomepagejsx---home-page-grid--table)
+  - [5.2. ItemDetailPage](#52-srcpagesitemdetailpagejsx---detail-page)
+  - [5.3. CreateItemPage - RHF](#53-srcpagescreateitempagejsx---create-page---rhf)
+  - [5.4. CreateItemPage - Formik](#54-srcpagescreateitempagejsx---create-page---formik)
+  - [5.5. EditItemPage - RHF](#55-srcpagesedititempagejsx---edit-page---rhf)
+  - [5.6. EditItemPage - Formik](#56-srcpagesedititempagejsx---edit-page---formik)
+- [6. Bootstrap Templates](#6-bootstrap-templates)
+  - [6.1. Basic Grid](#61-basic-grid)
+  - [6.2. Card Grid](#62-card-grid)
+  - [6.3. Table with Toolbar and Pagination](#63-table-with-toolbar-and-pagination)
+  - [6.4. Vertical Form](#64-vertical-form)
+  - [6.5. Horizontal Form](#65-horizontal-form)
+  - [6.6. Common Modal (Add/Edit)](#66-common-modal-addedit)
+  - [6.7. Delete Confirmation Modal](#67-delete-confirmation-modal)
+- [7. Notes](#7-notes)
+- [8. Utils](#8-utils)
 
 ---
 
-## 1. Cài đặt Dependencies
+## 1. Install Dependencies
 
 ```bash
 npm create vite@latest
-npm i bootstrap axios react-router-dom react-hook-form yup @hookform/resolvers
-npm i formik
+npm i bootstrap axios react-router-dom yup
+npm i formik --save
+
+npm i react-hook-form
 npm i dayjs
 ```
 
-## 2. Cấu trúc File
+## 2. File Structure
 
 ### 2.1. `src/util/http.js` - Axios Instance
 
@@ -68,6 +72,8 @@ export default http;
 ### 2.2. `src/api/mockData.js` - Mockup Data
 
 ```js
+import http from "../util/http.js";
+
 export const mockApi = {
   getAll() {
     return http.get("/");
@@ -94,6 +100,12 @@ export default mockApi;
 ```jsx
 import * as yup from "yup";
 
+const endOfToday = () => {
+  const t = new Date();
+  t.setHours(23, 59, 59, 999);
+  return t;
+};
+
 export const itemSchema = yup.object({
   name: yup
     .string()
@@ -104,24 +116,25 @@ export const itemSchema = yup.object({
     .test("uppercase", "Name must be uppercase", (v) =>
       v ? v === v.toUpperCase() : false
     ),
-  date:: yup
+  date: yup
     .date()
-    .typeError("Date is invalid")
-    .max(dayjs().endOf("day").toDate(), "Date must be past or now")
-    .required("Date is required"),
+    .typeError("Invalid date")
+    .required("Please select a date")
+    .max(endOfToday(), "Date cannot be in the future"),
   image: yup
     .string()
     .required("Image is required")
     .url("Image must be a valid URL"),
   status: yup
     .number()
-    .typeError("status must be a number")
-    .required("status is required")
+    .typeError("Status must be a number")
+    .required("Status is required")
     .min(1, "Min is 1")
-    .max(3, "Max is 3"),
+    .max(3, "Max is 3")
+    .integer("Status must be an integer"),
   isUnread: yup
     .boolean()
-    .required()
+    .required("isUnread is required")
     .when("status", {
       is: (s) => Number(s) === 2 || Number(s) === 3,
       then: (schema) =>
@@ -171,7 +184,7 @@ export default App;
 
 ## 4. Components
 
-### 4.1. `src/components/ConfirmDeleteModal.jsx` - Modal Xác nhận Xóa
+### 4.1. `src/components/ConfirmDeleteModal.jsx` - Delete Confirmation Modal
 
 ```jsx
 export default function ConfirmDeleteModal({
@@ -271,7 +284,61 @@ export default function NavBar() {
 }
 ```
 
-### 4.3. `src/components/CreateItemModal.jsx` - Modal Tạo Mới
+### 4.3. `src/components/Toast.jsx` - Toast Notification
+
+```jsx
+import { useEffect, useState } from "react";
+
+export default function Toast({ show, message, onClose }) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (show) {
+      setIsVisible(true);
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+        onClose && onClose();
+      }, 30000);
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+    }
+  }, [show, onClose]);
+
+  if (!show && !isVisible) return null;
+
+  return (
+    <div
+      className="toast-container position-fixed top-0 end-0 p-3"
+      style={{ zIndex: 11 }}
+    >
+      <div
+        className={`toast ${
+          isVisible ? "show" : ""
+        } bg-success text-white border-0 shadow-lg`}
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div className="toast-body d-flex align-items-center justify-content-between">
+          <span>{message || ""}</span>
+          <button
+            type="button"
+            className="btn-close btn-close-white ms-2"
+            aria-label="Close"
+            onClick={() => {
+              setIsVisible(false);
+              onClose && onClose();
+            }}
+          ></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+### 4.4. `src/components/CreateItemModal.jsx` - Create Modal
 
 ```jsx
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -295,7 +362,7 @@ export default function CreateItemModal({ show, onHide, onSuccess }) {
   const onSubmit = handleSubmit(async (data) => {
     try {
       setError("");
-      await itemApi.createItem(data);
+      await itemApi.addItem(data);
       onSuccess && onSuccess();
       onHide();
       reset();
@@ -314,12 +381,12 @@ export default function CreateItemModal({ show, onHide, onSuccess }) {
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Thêm mới</h5>
+            <h5 className="modal-title">Add New</h5>
             <button
               type="button"
               className="btn-close"
               data-bs-dismiss="modal"
-              aria-label="Đóng"
+              aria-label="Close"
               onClick={onHide}
             ></button>
           </div>
@@ -328,11 +395,11 @@ export default function CreateItemModal({ show, onHide, onSuccess }) {
               {error && <div className="alert alert-danger">{error}</div>}
               <div className="row g-3">
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Tên</label>
+                  <label className="form-label">Name</label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Nhập tên"
+                    placeholder="Enter name"
                     {...register("bookName")}
                   />
                   {errors.bookName && (
@@ -342,7 +409,7 @@ export default function CreateItemModal({ show, onHide, onSuccess }) {
                   )}
                 </div>
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Ảnh</label>
+                  <label className="form-label">Image</label>
                   <input
                     type="url"
                     className="form-control"
@@ -356,7 +423,7 @@ export default function CreateItemModal({ show, onHide, onSuccess }) {
                   )}
                 </div>
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Trạng thái</label>
+                  <label className="form-label">Status</label>
                   <select
                     className="form-select"
                     {...register("bookReadingStatus", {
@@ -376,7 +443,7 @@ export default function CreateItemModal({ show, onHide, onSuccess }) {
                   )}
                 </div>
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Loại</label>
+                  <label className="form-label">Type</label>
                   <select className="form-select" {...register("bookType")}>
                     <option>Data Science</option>
                     <option>Security</option>
@@ -415,7 +482,7 @@ export default function CreateItemModal({ show, onHide, onSuccess }) {
 }
 ```
 
-### 4.3. `src/components/EditItemModal.jsx` - Modal Chỉnh Sửa
+### 4.4. `src/components/EditItemModal.jsx` - Edit Modal
 
 ```jsx
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -476,7 +543,7 @@ export default function EditItemModal({ show, onHide, onSuccess, item }) {
               type="button"
               className="btn-close"
               data-bs-dismiss="modal"
-              aria-label="Đóng"
+              aria-label="Close"
               onClick={onHide}
             ></button>
           </div>
@@ -485,11 +552,11 @@ export default function EditItemModal({ show, onHide, onSuccess, item }) {
               {error && <div className="alert alert-danger">{error}</div>}
               <div className="row g-3">
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Tên</label>
+                  <label className="form-label">Name</label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Nhập tên"
+                    placeholder="Enter name"
                     {...register("bookName")}
                   />
                   {errors.bookName && (
@@ -499,7 +566,7 @@ export default function EditItemModal({ show, onHide, onSuccess, item }) {
                   )}
                 </div>
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Ảnh</label>
+                  <label className="form-label">Image</label>
                   <input
                     type="url"
                     className="form-control"
@@ -513,7 +580,7 @@ export default function EditItemModal({ show, onHide, onSuccess, item }) {
                   )}
                 </div>
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Trạng thái</label>
+                  <label className="form-label">Status</label>
                   <select
                     className="form-select"
                     {...register("bookReadingStatus", {
@@ -533,7 +600,7 @@ export default function EditItemModal({ show, onHide, onSuccess, item }) {
                   )}
                 </div>
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Loại</label>
+                  <label className="form-label">Type</label>
                   <select className="form-select" {...register("bookType")}>
                     <option>Data Science</option>
                     <option>Security</option>
@@ -574,7 +641,7 @@ export default function EditItemModal({ show, onHide, onSuccess, item }) {
 
 ## 5. Pages
 
-### 5.1. `src/pages/HomePage.jsx` - Trang Chủ (Grid & Table)
+### 5.1. `src/pages/HomePage.jsx` - Home Page (Grid & Table)
 
 ```jsx
 import { useEffect, useState } from "react";
@@ -583,6 +650,22 @@ import itemApi from "../api/item.api";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 import CreateItemModal from "../components/CreateItemModal";
 import EditItemModal from "../components/EditItemModal";
+import Toast from "../components/Toast";
+
+function getStatusBadge(status) {
+  const statusMap = {
+    1: { text: "Unread", className: "text-bg-secondary" },
+    2: { text: "Reading", className: "text-bg-info" },
+    3: { text: "Read", className: "text-bg-success" },
+  };
+  const statusInfo = statusMap[Number(status)] || {
+    text: "Unknown",
+    className: "text-bg-dark",
+  };
+  return (
+    <span className={`badge ${statusInfo.className}`}>{statusInfo.text}</span>
+  );
+}
 
 export default function HomePage() {
   const [items, setItems] = useState([]);
@@ -592,12 +675,14 @@ export default function HomePage() {
   const [showModalEdit, setShowModalEdit] = useState(false);
   const [showModalDelete, setShowModalDelete] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [viewMode, setViewMode] = useState("grid");
+  const [showToast, setShowToast] = useState(false);
 
   const fetchItems = async () => {
     try {
       setIsLoading(true);
       setError("");
-      const res = await itemApi.getAllItems();
+      const res = await itemApi.getAll();
       setItems(res.data);
     } catch (err) {
       setError(err?.response?.data?.message || err.message);
@@ -616,6 +701,7 @@ export default function HomePage() {
       fetchItems();
       setShowModalDelete(false);
       setSelectedItem(null);
+      setShowToast(true);
     } catch (err) {
       setError(err?.response?.data?.message || err.message);
     }
@@ -647,9 +733,15 @@ export default function HomePage() {
         itemName={selectedItem?.bookName}
       />
 
+      <Toast
+        show={showToast}
+        message="Item deleted successfully!"
+        onClose={() => setShowToast(false)}
+      />
+
       <div className="container py-4">
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h5 className="mb-0">Danh sách</h5>
+          <h5 className="mb-0">List</h5>
           <div className="d-flex gap-2">
             <div className="btn-group" role="group">
               <button
@@ -675,7 +767,7 @@ export default function HomePage() {
               className="btn btn-primary btn-sm"
               onClick={() => setShowModalAdd(true)}
             >
-              Thêm
+              Add
             </button>
           </div>
         </div>
@@ -695,7 +787,6 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Grid View */}
         {!isLoading && viewMode === "grid" && (
           <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
             {items.map((item) => (
@@ -722,7 +813,7 @@ export default function HomePage() {
                       to={`/item/${item.id}`}
                       className="btn btn-outline-secondary btn-sm"
                     >
-                      Xem
+                      View
                     </Link>
                     <button
                       className="btn btn-warning btn-sm"
@@ -731,7 +822,7 @@ export default function HomePage() {
                         setShowModalEdit(true);
                       }}
                     >
-                      Sửa
+                      Edit
                     </button>
                     <button
                       className="btn btn-danger btn-sm"
@@ -740,7 +831,7 @@ export default function HomePage() {
                         setShowModalDelete(true);
                       }}
                     >
-                      Xóa
+                      Delete
                     </button>
                   </div>
                 </div>
@@ -749,7 +840,6 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Table View */}
         {!isLoading && viewMode === "table" && (
           <>
             <div className="table-responsive shadow-sm rounded-3">
@@ -757,12 +847,12 @@ export default function HomePage() {
                 <thead className="table-light">
                   <tr>
                     <th style={{ width: "80px" }}>ID</th>
-                    <th>Tên</th>
-                    <th style={{ width: "160px" }}>Loại</th>
-                    <th style={{ width: "160px" }}>Trạng thái</th>
-                    <th style={{ width: "160px" }}>Hình</th>
+                    <th>Name</th>
+                    <th style={{ width: "160px" }}>Type</th>
+                    <th style={{ width: "160px" }}>Status</th>
+                    <th style={{ width: "160px" }}>Image</th>
                     <th className="text-end" style={{ width: "160px" }}>
-                      Thao tác
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -775,8 +865,8 @@ export default function HomePage() {
                       <td>{getStatusBadge(item.bookReadingStatus)}</td>
                       <td>
                         <img
-                          src={student.image}
-                          alt={student.name}
+                          src={item.bookImage}
+                          alt={item.bookName}
                           className="rounded-circle object-fit-cover"
                           style={{ width: 40, height: 40 }}
                         />
@@ -786,7 +876,7 @@ export default function HomePage() {
                           to={`/item/${item.id}`}
                           className="btn btn-outline-secondary btn-sm"
                         >
-                          Xem
+                          View
                         </Link>
                         <button
                           className="btn btn-warning btn-sm ms-1"
@@ -795,7 +885,7 @@ export default function HomePage() {
                             setShowModalEdit(true);
                           }}
                         >
-                          Sửa
+                          Edit
                         </button>
                         <button
                           className="btn btn-danger btn-sm ms-1"
@@ -804,7 +894,7 @@ export default function HomePage() {
                             setShowModalDelete(true);
                           }}
                         >
-                          Xóa
+                          Delete
                         </button>
                       </td>
                     </tr>
@@ -814,7 +904,7 @@ export default function HomePage() {
             </div>
             <div className="d-flex justify-content-between align-items-center mt-3">
               <small className="text-muted">
-                Trang 1/1 — {items.length} bản ghi
+                Page 1/1 — {items.length} records
               </small>
             </div>
           </>
@@ -825,15 +915,16 @@ export default function HomePage() {
 }
 ```
 
-### 5.2. `src/pages/ItemDetailPage.jsx` - Trang Chi Tiết
+### 5.2. `src/pages/ItemDetailPage.jsx` - Detail Page
 
 ```jsx
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import bookApi from "../api/book.api";
 
 export default function BookDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [item, setItem] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -854,7 +945,6 @@ export default function BookDetailPage() {
 
   useEffect(() => {
     fetchItem();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (isLoading)
@@ -862,7 +952,7 @@ export default function BookDetailPage() {
       <div className="container py-5 d-flex justify-content-center">
         <div className="d-flex align-items-center gap-3">
           <div className="spinner-border" role="status" />
-          <span className="text-muted">Đang tải…</span>
+          <span className="text-muted">Loading…</span>
         </div>
       </div>
     );
@@ -873,23 +963,25 @@ export default function BookDetailPage() {
         <div className="alert alert-danger d-flex justify-content-between align-items-center">
           <div>{error}</div>
           <button onClick={fetchItem} className="btn btn-light btn-sm">
-            Thử lại
+            Try Again
           </button>
         </div>
       </div>
     );
 
-  if (!item) return <div className="container py-4">Không tìm thấy</div>;
+  if (!item) return <div className="container py-4">Not Found</div>;
 
   return (
     <div className="container py-4">
       <div className="d-flex justify-content-end gap-2 mt-3">
-        <Link to={-1} className="btn btn-outline-secondary">
-          ← Quay lại
-        </Link>
+        <button
+          onClick={() => navigate(-1)}
+          className="btn btn-outline-secondary"
+        >
+          ← Back
+        </button>
       </div>
       <div className="row g-4">
-        {/* Ảnh */}
         <div className="col-12 col-md-5 col-lg-4">
           <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
             <div className="h-25 w-75 overflow-hidden d-flex m-auto">
@@ -903,7 +995,6 @@ export default function BookDetailPage() {
           </div>
         </div>
 
-        {/* Thông tin */}
         <div className="col-12 col-md-7 col-lg-8">
           <div className="card border-0 shadow-sm rounded-4">
             <div className="card-body p-4">
@@ -962,7 +1053,7 @@ export default function BookDetailPage() {
 }
 ```
 
-### 5.3. `src/pages/CreateItemPage.jsx` - Trang Tạo Mới (Page Version - RHF)
+### 5.3. `src/pages/CreateItemPage.jsx` - Create Page (RHF)
 
 ```jsx
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -991,7 +1082,7 @@ export default function CreateBookPage() {
         ...data,
         bookReadingStatus: Number(data.bookReadingStatus),
       };
-      await bookApi.createItem(payload);
+      await bookApi.addItem(payload);
       navigate("/TruongNNSE193452/AllBooks");
     } catch (err) {
       setError(err?.response?.data?.message || err.message);
@@ -1008,7 +1099,7 @@ export default function CreateBookPage() {
           <input
             type="text"
             className="form-control"
-            placeholder="Nhập tên"
+            placeholder="Enter name"
             {...register("bookName")}
           />
           {errors.bookName && (
@@ -1085,7 +1176,7 @@ export default function CreateBookPage() {
             className="btn btn-outline-secondary"
             onClick={() => navigate(-1)}
           >
-            Cancle
+            Cancel
           </button>
           <button
             type="submit"
@@ -1101,7 +1192,7 @@ export default function CreateBookPage() {
 }
 ```
 
-### 5.4. `src/pages/CreateItemPage.jsx` - Trang Tạo Mới (Page Version - Formilk)
+### 5.4. `src/pages/CreateItemPage.jsx` - Create Page (Formik)
 
 ```jsx
 import { useFormik } from "formik";
@@ -1132,7 +1223,7 @@ export default function CreateBookPage() {
           ...values,
           bookReadingStatus: Number(values.bookReadingStatus),
         };
-        await bookApi.createItem(payload);
+        await bookApi.addItem(payload);
         navigate("/TruongNNSE193452/AllBooks");
       } catch (err) {
         setError(err?.response?.data?.message || err.message);
@@ -1148,7 +1239,6 @@ export default function CreateBookPage() {
       {error && <div className="alert alert-danger">{error}</div>}
 
       <form className="row g-3" onSubmit={formik.handleSubmit}>
-        {/* Book Name */}
         <div className="col-12 col-md-6">
           <label className="form-label">Book Name</label>
           <input
@@ -1159,7 +1249,7 @@ export default function CreateBookPage() {
                 ? "is-invalid"
                 : ""
             }`}
-            placeholder="Nhập tên"
+            placeholder="Enter name"
             value={formik.values.bookName}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -1169,7 +1259,6 @@ export default function CreateBookPage() {
           )}
         </div>
 
-        {/* Book Image */}
         <div className="col-12 col-md-6">
           <label className="form-label">Book Image</label>
           <input
@@ -1190,7 +1279,6 @@ export default function CreateBookPage() {
           )}
         </div>
 
-        {/* Book Reading Status */}
         <div className="col-12 col-md-6">
           <label className="form-label">Book Reading Status</label>
           <select
@@ -1221,7 +1309,6 @@ export default function CreateBookPage() {
             )}
         </div>
 
-        {/* Switch Is Unread (disabled) */}
         <div className="col-12 col-md-6 form-check form-switch">
           <input
             className="form-check-input"
@@ -1237,7 +1324,6 @@ export default function CreateBookPage() {
           </label>
         </div>
 
-        {/* Book Type */}
         <div className="col-12 col-md-6">
           <label className="form-label">Book Type</label>
           <select
@@ -1285,7 +1371,7 @@ export default function CreateBookPage() {
 }
 ```
 
-### 5.5. `src/pages/EditItemPage.jsx` - Trang Chỉnh Sửa (Page Version - RHF)
+### 5.5. `src/pages/EditItemPage.jsx` - Edit Page (RHF)
 
 ```jsx
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -1345,14 +1431,14 @@ export default function UpdateBookPage() {
     }
   });
 
-  if (isLoading) return <div className="container py-4">Đang tải...</div>;
+  if (isLoading) return <div className="container py-4">Loading...</div>;
   if (error && !item)
     return <div className="container py-4 alert alert-danger">{error}</div>;
-  if (!item) return <div className="container py-4">Không tìm thấy</div>;
+  if (!item) return <div className="container py-4">Not Found</div>;
 
   return (
     <div className="container py-4">
-      <h4 className="mb-4">Create New Book</h4>
+      <h4 className="mb-4">Update Book</h4>
       {error && <div className="alert alert-danger">{error}</div>}
       <form className="row g-3" onSubmit={onSubmit}>
         <div className="col-12 col-md-6">
@@ -1360,7 +1446,7 @@ export default function UpdateBookPage() {
           <input
             type="text"
             className="form-control"
-            placeholder="Nhập tên"
+            placeholder="Enter name"
             {...register("bookName")}
           />
           {errors.bookName && (
@@ -1437,7 +1523,7 @@ export default function UpdateBookPage() {
             className="btn btn-outline-secondary"
             onClick={() => navigate(-1)}
           >
-            Cancle
+            Cancel
           </button>
           <button
             type="submit"
@@ -1453,7 +1539,7 @@ export default function UpdateBookPage() {
 }
 ```
 
-### 5.6. `src/pages/EditItemPage.jsx` - Trang Chỉnh Sửa (Page Version - FORMILK)
+### 5.6. `src/pages/EditItemPage.jsx` - Edit Page (Formik)
 
 ```jsx
 import { useFormik } from "formik";
@@ -1517,13 +1603,12 @@ export default function UpdateBookPage() {
         setIsLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  if (isLoading) return <div className="container py-4">Đang tải...</div>;
+  if (isLoading) return <div className="container py-4">Loading...</div>;
   if (error && !item)
     return <div className="container py-4 alert alert-danger">{error}</div>;
-  if (!item) return <div className="container py-4">Không tìm thấy</div>;
+  if (!item) return <div className="container py-4">Not Found</div>;
 
   return (
     <div className="container py-4">
@@ -1540,7 +1625,7 @@ export default function UpdateBookPage() {
                 ? "is-invalid"
                 : ""
             }`}
-            placeholder="Nhập tên"
+            placeholder="Enter name"
             value={formik.values.bookName}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -1614,7 +1699,6 @@ export default function UpdateBookPage() {
           </label>
         </div>
 
-        {/* Book Type */}
         <div className="col-12 col-md-6">
           <label className="form-label">Book Type</label>
           <select
@@ -1662,27 +1746,24 @@ export default function UpdateBookPage() {
 }
 ```
 
-## 6. Bootstrap Templates - Bộ template dán-là-dùng (JSX)
+## 6. Bootstrap Templates
 
-> **Lưu ý**: Các template này đã được chuyển đổi sang JSX format, có thể copy-paste trực tiếp vào project.
-
-### 6.1. Grid cơ bản
+### 6.1. Basic Grid
 
 ```jsx
 <div className="container py-4">
   <div className="row g-3">
     <div className="col-12 col-md-6 col-lg-4">
-      <div className="p-3 border rounded-3 bg-light">Khối A</div>
+      <div className="p-3 border rounded-3 bg-light">Block A</div>
     </div>
     <div className="col-12 col-md-6 col-lg-4">
-      <div className="p-3 border rounded-3 bg-light">Khối B</div>
+      <div className="p-3 border rounded-3 bg-light">Block B</div>
     </div>
     <div className="col-12 col-lg-4">
-      <div className="p-3 border rounded-3 bg-light">Khối C</div>
+      <div className="p-3 border rounded-3 bg-light">Block C</div>
     </div>
   </div>
 
-  {/* Ví dụ grid 2 cột cố định */}
   <div className="row g-3 mt-3">
     <div className="col-md-8">
       <div className="p-3 border rounded-3">Main</div>
@@ -1694,7 +1775,7 @@ export default function UpdateBookPage() {
 </div>
 ```
 
-### 6.2. Card grid (danh sách thẻ)
+### 6.2. Card Grid
 
 ```jsx
 <div className="container py-4">
@@ -1707,36 +1788,32 @@ export default function UpdateBookPage() {
           alt="..."
         />
         <div className="card-body">
-          <h5 className="card-title">Tiêu đề</h5>
-          <p className="card-text text-muted mb-2">Mô tả ngắn</p>
+          <h5 className="card-title">Title</h5>
+          <p className="card-text text-muted mb-2">Short description</p>
           <div className="d-flex gap-2">
-            <span className="badge text-bg-secondary">Nhãn A</span>
-            <span className="badge text-bg-info">Nhãn B</span>
+            <span className="badge text-bg-secondary">Label A</span>
+            <span className="badge text-bg-info">Label B</span>
           </div>
         </div>
         <div className="card-footer d-flex justify-content-end gap-2">
-          <button className="btn btn-outline-secondary btn-sm">Xem</button>
-          <button className="btn btn-primary btn-sm">Sửa</button>
+          <button className="btn btn-outline-secondary btn-sm">View</button>
+          <button className="btn btn-primary btn-sm">Edit</button>
         </div>
       </div>
     </div>
-    {/* Lặp thêm .col cho nhiều thẻ */}
   </div>
 </div>
 ```
 
-### 6.3. Bảng + thanh công cụ + phân trang
+### 6.3. Table with Toolbar and Pagination
 
 ```jsx
 <div className="container py-4">
   <div className="d-flex justify-content-between align-items-center mb-3">
-    <h5 className="mb-0">Danh sách</h5>
+    <h5 className="mb-0">List</h5>
     <div className="d-flex gap-2">
-      <input
-        className="form-control form-control-sm"
-        placeholder="Tìm kiếm..."
-      />
-      <button className="btn btn-primary btn-sm">Thêm</button>
+      <input className="form-control form-control-sm" placeholder="Search..." />
+      <button className="btn btn-primary btn-sm">Add</button>
     </div>
   </div>
 
@@ -1745,26 +1822,26 @@ export default function UpdateBookPage() {
       <thead className="table-light">
         <tr>
           <th style={{ width: "80px" }}>ID</th>
-          <th>Tên</th>
-          <th style={{ width: "160px" }}>Loại</th>
-          <th style={{ width: "160px" }}>Trạng thái</th>
+          <th>Name</th>
+          <th style={{ width: "160px" }}>Type</th>
+          <th style={{ width: "160px" }}>Status</th>
           <th className="text-end" style={{ width: "160px" }}>
-            Thao tác
+            Actions
           </th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>1001</td>
-          <td>Mục A</td>
-          <td>Nhóm 1</td>
+          <td>Item A</td>
+          <td>Group 1</td>
           <td>
-            <span className="badge text-bg-success">Hoạt động</span>
+            <span className="badge text-bg-success">Active</span>
           </td>
           <td className="text-end">
-            <button className="btn btn-outline-secondary btn-sm">Xem</button>
-            <button className="btn btn-warning btn-sm">Sửa</button>
-            <button className="btn btn-danger btn-sm">Xóa</button>
+            <button className="btn btn-outline-secondary btn-sm">View</button>
+            <button className="btn btn-warning btn-sm">Edit</button>
+            <button className="btn btn-danger btn-sm">Delete</button>
           </td>
         </tr>
       </tbody>
@@ -1772,10 +1849,10 @@ export default function UpdateBookPage() {
   </div>
 
   <div className="d-flex justify-content-between align-items-center mt-3">
-    <small className="text-muted">Trang 1/10 — 100 bản ghi</small>
+    <small className="text-muted">Page 1/10 — 100 records</small>
     <ul className="pagination pagination-sm mb-0">
       <li className="page-item disabled">
-        <a className="page-link">Trước</a>
+        <a className="page-link">Previous</a>
       </li>
       <li className="page-item active">
         <a className="page-link">1</a>
@@ -1784,29 +1861,29 @@ export default function UpdateBookPage() {
         <a className="page-link">2</a>
       </li>
       <li className="page-item">
-        <a className="page-link">Sau</a>
+        <a className="page-link">Next</a>
       </li>
     </ul>
   </div>
 </div>
 ```
 
-### 6.4. Form dọc (vertical)
+### 6.4. Vertical Form
 
 ```jsx
 <div className="container py-4">
   <form className="row g-3">
     <div className="col-12 col-md-6">
-      <label className="form-label">Tên</label>
-      <input type="text" className="form-control" placeholder="Nhập tên" />
-      <div className="form-text text-danger">Thông báo lỗi</div>
+      <label className="form-label">Name</label>
+      <input type="text" className="form-control" placeholder="Enter name" />
+      <div className="form-text text-danger">Error message</div>
     </div>
     <div className="col-12 col-md-6">
-      <label className="form-label">Ảnh</label>
+      <label className="form-label">Image</label>
       <input type="url" className="form-control" placeholder="https://..." />
     </div>
     <div className="col-12 col-md-6">
-      <label className="form-label">Trạng thái</label>
+      <label className="form-label">Status</label>
       <select className="form-select">
         <option value="1">1 – Unread</option>
         <option value="2">2 – Reading</option>
@@ -1814,7 +1891,7 @@ export default function UpdateBookPage() {
       </select>
     </div>
     <div className="col-12 col-md-6">
-      <label className="form-label">Loại</label>
+      <label className="form-label">Type</label>
       <select className="form-select">
         <option>Data Science</option>
         <option>Security</option>
@@ -1822,38 +1899,38 @@ export default function UpdateBookPage() {
       </select>
     </div>
     <div className="col-12">
-      <label className="form-label">Mô tả</label>
+      <label className="form-label">Description</label>
       <textarea
         className="form-control"
         rows="3"
-        placeholder="Mô tả..."
+        placeholder="Description..."
       ></textarea>
     </div>
     <div className="col-12 d-flex justify-content-end gap-2">
       <button type="button" className="btn btn-outline-secondary">
-        Hủy
+        Cancel
       </button>
       <button type="submit" className="btn btn-primary">
-        Lưu
+        Save
       </button>
     </div>
   </form>
 </div>
 ```
 
-### 6.5. Form ngang (horizontal)
+### 6.5. Horizontal Form
 
 ```jsx
 <div className="container py-4">
   <form>
     <div className="row mb-3">
-      <label className="col-sm-2 col-form-label">Tên</label>
+      <label className="col-sm-2 col-form-label">Name</label>
       <div className="col-sm-10">
         <input className="form-control" />
       </div>
     </div>
     <div className="row mb-3">
-      <label className="col-sm-2 col-form-label">Trạng thái</label>
+      <label className="col-sm-2 col-form-label">Status</label>
       <div className="col-sm-10">
         <select className="form-select">
           <option value="1">1 – Unread</option>
@@ -1864,17 +1941,17 @@ export default function UpdateBookPage() {
     </div>
     <div className="d-flex justify-content-end gap-2">
       <button className="btn btn-outline-secondary" type="button">
-        Hủy
+        Cancel
       </button>
       <button className="btn btn-primary" type="submit">
-        Lưu
+        Save
       </button>
     </div>
   </form>
 </div>
 ```
 
-### 6.6. Modal chung (thêm/sửa)
+### 6.6. Common Modal (Add/Edit)
 
 ```jsx
 <button
@@ -1882,40 +1959,39 @@ export default function UpdateBookPage() {
   data-bs-toggle="modal"
   data-bs-target="#exampleModal"
 >
-  Mở modal
+  Open Modal
 </button>
 
 <div className="modal fade" id="exampleModal" tabIndex="-1" aria-hidden="true">
   <div className="modal-dialog">
     <div className="modal-content">
       <div className="modal-header">
-        <h5 className="modal-title">Tiêu đề</h5>
+        <h5 className="modal-title">Title</h5>
         <button
           type="button"
           className="btn-close"
           data-bs-dismiss="modal"
-          aria-label="Đóng"
+          aria-label="Close"
         ></button>
       </div>
       <div className="modal-body">
-        {/* Nội dung/biểu mẫu */}
         <div className="mb-3">
-          <label className="form-label">Trường</label>
+          <label className="form-label">Field</label>
           <input className="form-control" />
         </div>
       </div>
       <div className="modal-footer">
         <button className="btn btn-outline-secondary" data-bs-dismiss="modal">
-          Hủy
+          Cancel
         </button>
-        <button className="btn btn-primary">Xác nhận</button>
+        <button className="btn btn-primary">Confirm</button>
       </div>
     </div>
   </div>
 </div>
 ```
 
-### 6.7. Modal xác nhận xóa
+### 6.7. Delete Confirmation Modal
 
 ```jsx
 <div
@@ -1927,73 +2003,123 @@ export default function UpdateBookPage() {
   <div className="modal-dialog modal-dialog-centered">
     <div className="modal-content">
       <div className="modal-header">
-        <h6 className="modal-title">Xác nhận xóa</h6>
+        <h6 className="modal-title">Confirm Delete</h6>
         <button
           className="btn-close"
           data-bs-dismiss="modal"
-          aria-label="Đóng"
+          aria-label="Close"
         ></button>
       </div>
-      <div className="modal-body">Bạn chắc chắn muốn xóa mục này?</div>
+      <div className="modal-body">
+        Are you sure you want to delete this item?
+      </div>
       <div className="modal-footer">
         <button className="btn btn-secondary" data-bs-dismiss="modal">
-          Hủy
+          Cancel
         </button>
-        <button className="btn btn-danger">Xóa</button>
+        <button className="btn btn-danger">Delete</button>
       </div>
     </div>
   </div>
 </div>
 ```
 
-## 7. Lưu Ý
+## 7. Notes
 
-- Đảm bảo file `src/main.jsx` import Bootstrap CSS: `import "bootstrap/dist/css/bootstrap.min.css";`
+- Make sure `src/main.jsx` imports Bootstrap CSS: `import "bootstrap/dist/css/bootstrap.min.css";`
 
-## 8. Util
+## 8. Utils
 
 ```js
-function formatLimitedTimeDeal(v) {
+export function formatLimitedTimeDeal(v) {
   const n = Number(v);
   if (!Number.isFinite(n) || n <= 0) return null;
-  const pct = n <= 1 ? Math.round(n * 100) : Math.round(n);
+  let pct = n <= 1 ? Math.round(n * 100) : Math.round(n);
+  pct = Math.min(100, Math.max(1, pct));
+  if (Object.is(pct, -0)) pct = 0;
   return `${pct}%`;
 }
-const toDMY = (input) => {
-  const d = typeof input === "string" ? new Date(input) : input;
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const yyyy = d.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
-};
 
-const toInputDate = (s) => {
-  // Accepts "DD/MM/YYYY" or ISO/date string, returns "YYYY-MM-DD" for <input type="date">
-  if (!s) return "";
-  if (s.includes("/")) {
-    const [dd, mm, yyyy] = s.split("/");
-    return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+export function formatMinute(seconds, opts = { lessThanOne: "< 1 minute" }) {
+  const n = Number(seconds);
+  if (!Number.isFinite(n) || n < 0) return "";
+  const min = Math.floor(n / 60);
+  if (min === 0 && n > 0) return opts.lessThanOne ?? "0 minutes";
+  const unit = min === 1 ? "minute" : "minutes";
+  return `${min.toLocaleString("en-US")} ${unit}`;
+}
+
+function isValidDate(d) {
+  return d instanceof Date && !Number.isNaN(d.getTime());
+}
+
+function parseToYMD(input) {
+  if (!input) return null;
+
+  if (input instanceof Date) {
+    if (!isValidDate(input)) return null;
+    return {
+      y: input.getFullYear(),
+      m: String(input.getMonth() + 1).padStart(2, "0"),
+      d: String(input.getDate()).padStart(2, "0"),
+    };
   }
-  const d = new Date(s);
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const yyyy = d.getFullYear();
-  return `${yyyy}-${mm}-${dd}`;
-};
 
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-dayjs.extend(customParseFormat);
+  if (
+    typeof input === "number" ||
+    (/^\d+$/.test(String(input)) && String(input).length >= 10)
+  ) {
+    const n = Number(input);
+    const d = new Date(n);
+    if (!isValidDate(d)) return null;
+    return {
+      y: d.getFullYear(),
+      m: String(d.getMonth() + 1).padStart(2, "0"),
+      d: String(d.getDate()).padStart(2, "0"),
+    };
+  }
 
-export const formatToDate = (s) => {
-  if (!s) return "";
-  const d = dayjs(s, "DD/MM/YYYY", true);
-  return d.isValid() ? d.format("YYYY-MM-DD") : "";
-};
+  if (typeof input === "string") {
+    const s = input.trim();
+    const m1 = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+    if (m1) {
+      const [_, dd, mm, yyyy] = m1;
+      const d = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+      if (!isValidDate(d)) return null;
+      return {
+        y: d.getFullYear(),
+        m: String(d.getMonth() + 1).padStart(2, "0"),
+        d: String(d.getDate()).padStart(2, "0"),
+      };
+    }
+    const m2 = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+    if (m2) {
+      const [_, yyyy, mm, dd] = m2;
+      const d = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+      if (!isValidDate(d)) return null;
+      return { y: yyyy, m: mm, d: dd };
+    }
 
-export const formatToDMY = (s) => {
-  if (!s) return "";
-  const d = dayjs(s, "YYYY-MM-DD", true);
-  return d.isValid() ? d.format("DD/MM/YYYY") : "";
-};
+    const d = new Date(s);
+    if (!isValidDate(d)) return null;
+    return {
+      y: d.getFullYear(),
+      m: String(d.getMonth() + 1).padStart(2, "0"),
+      d: String(d.getDate()).padStart(2, "0"),
+    };
+  }
+  return null;
+}
+
+export function toDMY(input) {
+  const ymd = parseToYMD(input);
+  if (!ymd) return "";
+  return `${ymd.d}/${ymd.m}/${ymd.y}`;
+}
+
+export function toInputDate(input) {
+  const ymd = parseToYMD(input);
+  if (!ymd) return "";
+  return `${ymd.y}-${ymd.m}-${ymd.d}`;
+}
 ```
