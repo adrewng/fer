@@ -113,11 +113,11 @@ export default function AddLesson() {
             className="form-check-input"
             type="checkbox"
             role="switch"
+            name="isCompleted"
             id="switchCheckisCompleted"
             checked={!!formik.values.isCompleted}
-            onChange={(e) =>
-              formik.setFieldValue("isCompleted", e.target.checked)
-            }
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
           />
           <label className="form-check-label" htmlFor="switchCheckisCompleted">
             Is Completed
