@@ -17,10 +17,10 @@
 - [5. Pages](#5-pages)
   - [5.1. HomePage (Grid & Table)](#51-srcpageshomepagejsx---home-page-grid--table)
   - [5.2. ItemDetailPage](#52-srcpagesitemdetailpagejsx---detail-page)
-  - [5.3. CreateItemPage - RHF](#53-srcpagescreateitempagejsx---create-page---rhf)
-  - [5.4. CreateItemPage - Formik](#54-srcpagescreateitempagejsx---create-page---formik)
-  - [5.5. EditItemPage - RHF](#55-srcpagesedititempagejsx---edit-page---rhf)
-  - [5.6. EditItemPage - Formik](#56-srcpagesedititempagejsx---edit-page---formik)
+  - [5.3. CreateItemPage - RHF](#53-srcpagescreateitempagejsx---create-page-rhf)
+  - [5.4. CreateItemPage - Formik](#54-srcpagescreateitempagejsx---create-page-formik)
+  - [5.5. EditItemPage - RHF](#55-srcpagesedititempagejsx---edit-page-rhf)
+  - [5.6. EditItemPage - Formik](#56-srcpagesedititempagejsx---edit-page-formik)
 - [6. Bootstrap Templates](#6-bootstrap-templates)
   - [6.1. Basic Grid](#61-basic-grid)
   - [6.2. Card Grid](#62-card-grid)
@@ -232,7 +232,7 @@ export default function ConfirmDeleteModal({
 }
 ```
 
-### 4.2 NavBar
+### 4.2. NavBar
 
 ```jsx
 import { NavLink } from "react-router-dom";
@@ -482,7 +482,7 @@ export default function CreateItemModal({ show, onHide, onSuccess }) {
 }
 ```
 
-### 4.4. `src/components/EditItemModal.jsx` - Edit Modal
+### 4.5. `src/components/EditItemModal.jsx` - Edit Modal
 
 ```jsx
 import { yupResolver } from "@hookform/resolvers/yup";
