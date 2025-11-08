@@ -746,6 +746,7 @@ export default function HomePage() {
                     <th>Tên</th>
                     <th style={{ width: "160px" }}>Loại</th>
                     <th style={{ width: "160px" }}>Trạng thái</th>
+                    <th style={{ width: "160px" }}>Hình</th>
                     <th className="text-end" style={{ width: "160px" }}>
                       Thao tác
                     </th>
@@ -758,6 +759,14 @@ export default function HomePage() {
                       <td>{item.bookName}</td>
                       <td>{item.bookType}</td>
                       <td>{getStatusBadge(item.bookReadingStatus)}</td>
+                      <td>
+                        <img
+                          src={student.image}
+                          alt={student.name}
+                          className="rounded-circle object-fit-cover"
+                          style={{ width: 40, height: 40 }}
+                        />
+                      </td>
                       <td className="text-end">
                         <Link
                           to={`/item/${item.id}`}
