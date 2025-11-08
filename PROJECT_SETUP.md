@@ -12,7 +12,7 @@
   - [4.1. ConfirmDeleteModal](#41-srccomponentsconfirmdeletemodaljsx---modal-xác-nhận-xóa)
   - [4.2. NavBar](#42-navbar)
   - [4.3. CreateItemModal](#43-srccomponentscreateitemmodaljsx---modal-tạo-mới)
-  - [4.3. EditItemModal](#43-srccomponentsedititemmodaljsx---modal-chỉnh-sửa-1)
+  - [4.3. EditItemModal](#43-srccomponentsedititemmodaljsx---modal-chỉnh-sửa)
 - [5. Pages](#5-pages)
   - [5.1. HomePage (Grid & Table)](#51-srcpageshomepagejsx---trang-chủ-grid--table)
   - [5.2. ItemDetailPage](#52-srcpagesitemdetailpagejsx---trang-chi-tiết)
@@ -37,6 +37,8 @@
 ```bash
 npm create vite@latest
 npm i bootstrap axios react-router-dom react-hook-form yup @hookform/resolvers
+npm i formik
+npm i dayjs
 ```
 
 ## 2. Cấu trúc File
@@ -46,7 +48,7 @@ npm i bootstrap axios react-router-dom react-hook-form yup @hookform/resolvers
 ```jsx
 import axios from "axios";
 
-const URL = import.meta.env.VITE_APP_URL || "http://localhost:3000";
+const URL = import.meta.env.VITE_APP_URL;
 
 class Http {
   instance;
@@ -102,6 +104,11 @@ export const itemSchema = yup.object({
     .test("uppercase", "Name must be uppercase", (v) =>
       v ? v === v.toUpperCase() : false
     ),
+  date:: yup
+    .date()
+    .typeError("Date is invalid")
+    .max(dayjs().endOf("day").toDate(), "Date must be past or now")
+    .required("Date is required"),
   image: yup
     .string()
     .required("Image is required")
@@ -1972,5 +1979,21 @@ const toInputDate = (s) => {
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const yyyy = d.getFullYear();
   return `${yyyy}-${mm}-${dd}`;
+};
+
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
+
+export const formatToDate = (s) => {
+  if (!s) return "";
+  const d = dayjs(s, "DD/MM/YYYY", true);
+  return d.isValid() ? d.format("YYYY-MM-DD") : "";
+};
+
+export const formatToDMY = (s) => {
+  if (!s) return "";
+  const d = dayjs(s, "YYYY-MM-DD", true);
+  return d.isValid() ? d.format("DD/MM/YYYY") : "";
 };
 ```

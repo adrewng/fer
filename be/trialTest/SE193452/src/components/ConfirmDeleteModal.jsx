@@ -1,9 +1,8 @@
-import React from "react";
-
 export default function ConfirmDeleteModal({
   show,
   onHide,
-  handleDeleteStudent,
+  handleDelete,
+  itemName,
 }) {
   return (
     <div
@@ -11,27 +10,30 @@ export default function ConfirmDeleteModal({
       tabIndex="-1"
       style={{ display: show ? "block" : "none" }}
     >
-      <div className="modal-dialog">
+      <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Confirm Delete</h5>
+            <h6 className="modal-title">Confirm Delete</h6>
             <button
-              type="button"
               className="btn-close"
               data-bs-dismiss="modal"
-              aria-label="Close"
+              aria-label="close"
               onClick={onHide}
-            />
+            ></button>
           </div>
           <div className="modal-body">
-            <div>Are you sure you want to delete this student?</div>
+            Are you sure delete{itemName ? `: ${itemName}` : ""}?
           </div>
           <div className="modal-footer">
-            <button className="btn btn-secondary" onClick={onHide}>
-              Cancel
+            <button
+              className="btn btn-secondary"
+              data-bs-dismiss="modal"
+              onClick={onHide}
+            >
+              Close
             </button>
-            <button className="btn btn-danger" onClick={handleDeleteStudent}>
-              Yes, delete it
+            <button className="btn btn-danger" onClick={handleDelete}>
+              Delete
             </button>
           </div>
         </div>

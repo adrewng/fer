@@ -1,11 +1,13 @@
 import axios from "axios";
-const URL = import.meta.env.VITE_APP_URL;
+
+const URL = import.meta.env.VITE_APP_URL || "http://localhost:3000";
+
 class Http {
   instance;
   constructor() {
     this.instance = axios.create({
       baseURL: URL,
-      timeout: 10 * 1000,
+      timeout: 15 * 1000,
       headers: { "Content-Type": "application/json" },
     });
   }
