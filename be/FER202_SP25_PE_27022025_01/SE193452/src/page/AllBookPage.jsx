@@ -65,8 +65,20 @@ export default function AllBookPage() {
           </div>
         </div>
 
-        {isLoading && <p>Đang tải dữ liệu...</p>}
-        {error && <div className="alert alert-danger">{error}</div>}
+        {isLoading && (
+          <div className="d-flex align-items-center justify-content-center gap-3">
+            <div className="spinner-border" role="status" />
+            <span className="text-muted">Đang tải…</span>
+          </div>
+        )}
+        {error && (
+          <div className="alert alert-danger d-flex justify-content-between align-items-center">
+            <div>{error}</div>
+            <button onClick={fetchItems} className="btn btn-light btn-sm">
+              Thử lại
+            </button>
+          </div>
+        )}
         {!isLoading && items && (
           <>
             <div className="table-responsive shadow-sm rounded-3">
