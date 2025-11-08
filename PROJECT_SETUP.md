@@ -16,8 +16,10 @@
 - [5. Pages](#5-pages)
   - [5.1. HomePage (Grid & Table)](#51-srcpageshomepagejsx---trang-chủ-grid--table)
   - [5.2. ItemDetailPage](#52-srcpagesitemdetailpagejsx---trang-chi-tiết)
-  - [5.3. CreateItemPage](#53-srcpagescreateitempagejsx---trang-tạo-mới-page-version)
-  - [5.4. EditItemPage](#54-srcpagesedititempagejsx---trang-chỉnh-sửa-page-version)
+  - [5.3. CreateItemPage - RHF](#53-srcpagescreateitempagejsx---trang-tạo-mới-page-version---rhf)
+  - [5.4. CreateItemPage - FORMILK](#54-srcpagescreateitempagejsx---trang-tạo-mới-page-version---formilk)
+  - [5.5. EditItemPage - RHF](#55-srcpagesedititempagejsx---trang-chỉnh-sửa-page-version---rhf)
+  - [5.6. EditItemPage - FORMILK](#56-srcpagesedititempagejsx---trang-chỉnh-sửa-page-version---formilk)
 - [6. Bootstrap Templates](#6-bootstrap-templates---bộ-template-dán-là-dùng-jsx)
   - [6.1. Grid cơ bản](#61-grid-cơ-bản)
   - [6.2. Card grid](#62-card-grid-danh-sách-thẻ)
@@ -953,34 +955,37 @@ export default function BookDetailPage() {
 }
 ```
 
-### 5.3. `src/pages/CreateItemPage.jsx` - Trang Tạo Mới (Page Version)
+### 5.3. `src/pages/CreateItemPage.jsx` - Trang Tạo Mới (Page Version - RHF)
 
 ```jsx
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import itemApi from "../api/item.api";
-import itemSchema from "../schema/item.schema";
+import bookApi from "../api/book.api";
+import bookSchema from "../schema/book.schema";
 
-export default function CreateItemPage() {
+export default function CreateBookPage() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
     setValue,
   } = useForm({
-    resolver: yupResolver(itemSchema),
+    resolver: yupResolver(bookSchema),
   });
 
   const onSubmit = handleSubmit(async (data) => {
     try {
       setError("");
-      await itemApi.createItem(data);
-      navigate("/");
+      const payload = {
+        ...data,
+        bookReadingStatus: Number(data.bookReadingStatus),
+      };
+      await bookApi.createItem(payload);
+      navigate("/TruongNNSE193452/AllBooks");
     } catch (err) {
       setError(err?.response?.data?.message || err.message);
     }
@@ -988,11 +993,11 @@ export default function CreateItemPage() {
 
   return (
     <div className="container py-4">
-      <h4 className="mb-4">Thêm mới</h4>
+      <h4 className="mb-4">Create New Book</h4>
       {error && <div className="alert alert-danger">{error}</div>}
       <form className="row g-3" onSubmit={onSubmit}>
         <div className="col-12 col-md-6">
-          <label className="form-label">Tên</label>
+          <label className="form-label">Book Name</label>
           <input
             type="text"
             className="form-control"
@@ -1006,7 +1011,7 @@ export default function CreateItemPage() {
           )}
         </div>
         <div className="col-12 col-md-6">
-          <label className="form-label">Ảnh</label>
+          <label className="form-label">Book Image</label>
           <input
             type="url"
             className="form-control"
@@ -1019,8 +1024,9 @@ export default function CreateItemPage() {
             </div>
           )}
         </div>
+
         <div className="col-12 col-md-6">
-          <label className="form-label">Trạng thái</label>
+          <label className="form-label">Book Reading Status</label>
           <select
             className="form-select"
             {...register("bookReadingStatus", {
@@ -1039,12 +1045,26 @@ export default function CreateItemPage() {
             </div>
           )}
         </div>
+        <div className="col-12 col-md-6 form-check form-switch">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            role="switch"
+            id="switchCheckChecked"
+            {...register("isUnread")}
+            disabled
+          />
+          <label className="form-check-label" htmlFor="switchCheckChecked">
+            Is Unread
+          </label>
+        </div>
+
         <div className="col-12 col-md-6">
-          <label className="form-label">Loại</label>
+          <label className="form-label">Book Type</label>
           <select className="form-select" {...register("bookType")}>
-            <option>Data Science</option>
-            <option>Security</option>
-            <option>Design</option>
+            <option value="Data Science">Data Science</option>
+            <option value="Security">Security</option>
+            <option value="Design">Design</option>
           </select>
           {errors.bookType && (
             <div className="form-text text-danger">
@@ -1052,28 +1072,20 @@ export default function CreateItemPage() {
             </div>
           )}
         </div>
-        <div className="col-12">
-          <label className="form-label">Mô tả</label>
-          <textarea
-            className="form-control"
-            rows="3"
-            placeholder="Mô tả..."
-          ></textarea>
-        </div>
         <div className="col-12 d-flex justify-content-end gap-2">
           <button
             type="button"
             className="btn btn-outline-secondary"
-            onClick={() => navigate("/")}
+            onClick={() => navigate(-1)}
           >
-            Hủy
+            Cancle
           </button>
           <button
             type="submit"
             className="btn btn-primary"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Đang lưu..." : "Lưu"}
+            {isSubmitting ? "Saving..." : "Save"}
           </button>
         </div>
       </form>
@@ -1082,17 +1094,202 @@ export default function CreateItemPage() {
 }
 ```
 
-### 5.4. `src/pages/EditItemPage.jsx` - Trang Chỉnh Sửa (Page Version)
+### 5.4. `src/pages/CreateItemPage.jsx` - Trang Tạo Mới (Page Version - Formilk)
+
+```jsx
+import { useFormik } from "formik";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import bookApi from "../api/book.api";
+import bookSchema from "../schema/book.schema";
+
+export default function CreateBookPage() {
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
+
+  const formik = useFormik({
+    initialValues: {
+      bookName: "",
+      bookImage: "",
+      bookReadingStatus: 1,
+      isUnread: true,
+      bookType: "Data Science",
+    },
+    validationSchema: bookSchema,
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: async (values, { setSubmitting }) => {
+      try {
+        setError("");
+        const payload = {
+          ...values,
+          bookReadingStatus: Number(values.bookReadingStatus),
+        };
+        await bookApi.createItem(payload);
+        navigate("/TruongNNSE193452/AllBooks");
+      } catch (err) {
+        setError(err?.response?.data?.message || err.message);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+  });
+
+  return (
+    <div className="container py-4">
+      <h4 className="mb-4">Create New Book</h4>
+      {error && <div className="alert alert-danger">{error}</div>}
+
+      <form className="row g-3" onSubmit={formik.handleSubmit}>
+        {/* Book Name */}
+        <div className="col-12 col-md-6">
+          <label className="form-label">Book Name</label>
+          <input
+            type="text"
+            name="bookName"
+            className={`form-control ${
+              formik.touched.bookName && formik.errors.bookName
+                ? "is-invalid"
+                : ""
+            }`}
+            placeholder="Nhập tên"
+            value={formik.values.bookName}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.bookName && formik.errors.bookName && (
+            <div className="invalid-feedback">{formik.errors.bookName}</div>
+          )}
+        </div>
+
+        {/* Book Image */}
+        <div className="col-12 col-md-6">
+          <label className="form-label">Book Image</label>
+          <input
+            type="url"
+            name="bookImage"
+            className={`form-control ${
+              formik.touched.bookImage && formik.errors.bookImage
+                ? "is-invalid"
+                : ""
+            }`}
+            placeholder="https://..."
+            value={formik.values.bookImage}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.bookImage && formik.errors.bookImage && (
+            <div className="invalid-feedback">{formik.errors.bookImage}</div>
+          )}
+        </div>
+
+        {/* Book Reading Status */}
+        <div className="col-12 col-md-6">
+          <label className="form-label">Book Reading Status</label>
+          <select
+            name="bookReadingStatus"
+            className={`form-select ${
+              formik.touched.bookReadingStatus &&
+              formik.errors.bookReadingStatus
+                ? "is-invalid"
+                : ""
+            }`}
+            value={formik.values.bookReadingStatus}
+            onBlur={formik.handleBlur}
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              formik.setFieldValue("bookReadingStatus", v);
+              formik.setFieldValue("isUnread", v === 1);
+            }}
+          >
+            <option value={1}>1 – Unread</option>
+            <option value={2}>2 – Reading</option>
+            <option value={3}>3 – Read</option>
+          </select>
+          {formik.touched.bookReadingStatus &&
+            formik.errors.bookReadingStatus && (
+              <div className="invalid-feedback d-block">
+                {formik.errors.bookReadingStatus}
+              </div>
+            )}
+        </div>
+
+        {/* Switch Is Unread (disabled) */}
+        <div className="col-12 col-md-6 form-check form-switch">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            role="switch"
+            id="switchCheckIsUnread"
+            checked={!!formik.values.isUnread}
+            onChange={() => {}}
+            disabled
+          />
+          <label className="form-check-label" htmlFor="switchCheckIsUnread">
+            Is Unread
+          </label>
+        </div>
+
+        {/* Book Type */}
+        <div className="col-12 col-md-6">
+          <label className="form-label">Book Type</label>
+          <select
+            name="bookType"
+            className={`form-select ${
+              formik.touched.bookType && formik.errors.bookType
+                ? "is-invalid"
+                : ""
+            }`}
+            value={formik.values.bookType}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          >
+            <option value="Data Science">Data Science</option>
+            <option value="Security">Security</option>
+            <option value="Design">Design</option>
+          </select>
+          {formik.touched.bookType && formik.errors.bookType && (
+            <div className="invalid-feedback d-block">
+              {formik.errors.bookType}
+            </div>
+          )}
+        </div>
+
+        <div className="col-12 d-flex justify-content-end gap-2">
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={() => navigate(-1)}
+            disabled={formik.isSubmitting}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={formik.isSubmitting}
+          >
+            {formik.isSubmitting ? "Saving..." : "Save"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+```
+
+### 5.5. `src/pages/EditItemPage.jsx` - Trang Chỉnh Sửa (Page Version - RHF)
 
 ```jsx
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
-import artToolsApi from "../api/artTools.api";
-import artToolSchema from "../schema/artToolSchema";
 
-export default function EditArtToolPage() {
+import bookApi from "../api/book.api";
+import bookSchema from "../schema/book.schema";
+
+export default function UpdateBookPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -1103,25 +1300,24 @@ export default function EditArtToolPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setValue,
     reset,
   } = useForm({
-    resolver: yupResolver(artToolSchema),
+    resolver: yupResolver(bookSchema),
   });
 
   useEffect(() => {
     const fetchItem = async () => {
       try {
         setIsLoading(true);
-        const res = await artToolsApi.getItemDetail(id);
+        const res = await bookApi.getItemDetail(id);
         setItem(res.data);
         reset({
-          artName: res.data.artName || "",
-          price: Number(res.data.price ?? 0),
-          description: res.data.description || "",
-          glassSurface: Boolean(res.data.glassSurface),
-          image: res.data.image || "",
-          brand: res.data.brand || "",
-          limitedTimeDeal: Number(res.data.limitedTimeDeal ?? 0),
+          bookName: res.data.bookName || "",
+          bookImage: res.data.bookImage || "",
+          bookReadingStatus: Number(res.data.bookReadingStatus),
+          isUnread: Boolean(res.data.isUnread),
+          bookType: res.data.bookType || "",
         });
       } catch (err) {
         setError(err?.response?.data?.message || err.message);
@@ -1135,8 +1331,8 @@ export default function EditArtToolPage() {
   const onSubmit = handleSubmit(async (data) => {
     try {
       setError("");
-      await artToolsApi.updateItem(id, data);
-      navigate(`/TruongNNSE193452`);
+      await bookApi.updateItem(id, data);
+      navigate("/TruongNNSE193452/AllBooks");
     } catch (err) {
       setError(err?.response?.data?.message || err.message);
     }
@@ -1149,100 +1345,291 @@ export default function EditArtToolPage() {
 
   return (
     <div className="container py-4">
-      <h4 className="mb-4">Update Art Tool</h4>
+      <h4 className="mb-4">Create New Book</h4>
       {error && <div className="alert alert-danger">{error}</div>}
       <form className="row g-3" onSubmit={onSubmit}>
         <div className="col-12 col-md-6">
-          <label className="form-label">Name</label>
+          <label className="form-label">Book Name</label>
           <input
             type="text"
             className="form-control"
             placeholder="Nhập tên"
-            {...register("artName")}
+            {...register("bookName")}
           />
-          {errors.artName && (
+          {errors.bookName && (
             <div className="form-text text-danger">
-              {errors.artName.message}
+              {errors.bookName.message}
             </div>
           )}
         </div>
-
         <div className="col-12 col-md-6">
-          <label className="form-label">Image</label>
+          <label className="form-label">Book Image</label>
           <input
             type="url"
             className="form-control"
             placeholder="https://..."
-            {...register("image")}
+            {...register("bookImage")}
           />
-          {errors.image && (
-            <div className="form-text text-danger">{errors.image.message}</div>
+          {errors.bookImage && (
+            <div className="form-text text-danger">
+              {errors.bookImage.message}
+            </div>
           )}
         </div>
 
         <div className="col-12 col-md-6">
-          <label className="form-label">Brand</label>
-          <select className="form-select" {...register("brand")}>
-            <option value="KingArt">KingArt</option>
-            <option value="Color Spalash">Color Spalash</option>
-            <option value="Edding">Edding</option>
-            <option value="Arteza">Arteza</option>
+          <label className="form-label">Book Reading Status</label>
+          <select
+            className="form-select"
+            {...register("bookReadingStatus", {
+              valueAsNumber: true,
+              onChange: (e) =>
+                setValue("isUnread", Number(e.target.value) === 1),
+            })}
+          >
+            <option value="1">1 – Unread</option>
+            <option value="2">2 – Reading</option>
+            <option value="3">3 – Read</option>
           </select>
-          {errors.brand && (
-            <div className="form-text text-danger">{errors.brand.message}</div>
-          )}
-        </div>
-        <div className="col-12 col-md-6">
-          <label className="form-label">Price</label>
-          <input
-            type="number"
-            className="form-control"
-            {...register("price")}
-          />
-          {errors.price && (
-            <div className="form-text text-danger">{errors.price.message}</div>
-          )}
-        </div>
-        <div className="col-12 col-md-6">
-          <label className="form-label">Limited Time Deal</label>
-          <input
-            type="number"
-            className="form-control"
-            step="any"
-            {...register("limitedTimeDeal")}
-          />
-          {errors.limitedTimeDeal && (
+          {errors.bookReadingStatus && (
             <div className="form-text text-danger">
-              {errors.limitedTimeDeal.message}
+              {errors.bookReadingStatus.message}
             </div>
           )}
         </div>
-        <div className="col-12">
-          <label className="form-label">Mô tả</label>
-          <textarea
-            className="form-control"
-            rows="3"
-            placeholder="Mô tả..."
-            {...register("description")}
-          ></textarea>
-          {errors.description && (
-            <div className="form-text text-danger">
-              {errors.description.message}
-            </div>
-          )}
-        </div>
-
-        <div className=" col-12 col-md-6 form-check form-switch">
+        <div className="col-12 col-md-6 form-check form-switch">
           <input
             className="form-check-input"
             type="checkbox"
             role="switch"
             id="switchCheckChecked"
-            {...register("glassSurface")}
+            {...register("isUnread")}
+            disabled
           />
           <label className="form-check-label" htmlFor="switchCheckChecked">
-            Glass Surface
+            Is Unread
           </label>
+        </div>
+
+        <div className="col-12 col-md-6">
+          <label className="form-label">Book Type</label>
+          <select className="form-select" {...register("bookType")}>
+            <option value="Data Science">Data Science</option>
+            <option value="Security">Security</option>
+            <option value="Design">Design</option>
+          </select>
+          {errors.bookType && (
+            <div className="form-text text-danger">
+              {errors.bookType.message}
+            </div>
+          )}
+        </div>
+        <div className="col-12 d-flex justify-content-end gap-2">
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={() => navigate(-1)}
+          >
+            Cancle
+          </button>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Saving..." : "Save"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+```
+
+### 5.6. `src/pages/EditItemPage.jsx` - Trang Chỉnh Sửa (Page Version - FORMILK)
+
+```jsx
+import { useFormik } from "formik";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+import bookApi from "../api/book.api";
+import bookSchema from "../schema/book.schema";
+
+export default function UpdateBookPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [item, setItem] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const formik = useFormik({
+    initialValues: {
+      bookName: "",
+      bookImage: "",
+      bookReadingStatus: 1,
+      isUnread: true,
+      bookType: "Data Science",
+    },
+    validationSchema: bookSchema,
+    validateOnChange: true,
+    onSubmit: async (values, { setSubmitting }) => {
+      try {
+        setError("");
+        await bookApi.updateItem(id, {
+          ...values,
+          bookReadingStatus: Number(values.bookReadingStatus),
+        });
+        navigate("/TruongNNSE193452/AllBooks");
+      } catch (err) {
+        setError(err?.response?.data?.message || err.message);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+        const res = await bookApi.getItemDetail(id);
+        setItem(res.data);
+        formik.setValues({
+          bookName: res.data.bookName || "",
+          bookImage: res.data.bookImage || "",
+          bookReadingStatus: Number(res.data.bookReadingStatus),
+          isUnread: Boolean(res.data.isUnread),
+          bookType: res.data.bookType || "Data Science",
+        });
+      } catch (err) {
+        setError(err?.response?.data?.message || err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  if (isLoading) return <div className="container py-4">Đang tải...</div>;
+  if (error && !item)
+    return <div className="container py-4 alert alert-danger">{error}</div>;
+  if (!item) return <div className="container py-4">Không tìm thấy</div>;
+
+  return (
+    <div className="container py-4">
+      <h4 className="mb-4">Update Book</h4>
+      {error && <div className="alert alert-danger">{error}</div>}
+      <form className="row g-3" onSubmit={formik.handleSubmit}>
+        <div className="col-12 col-md-6">
+          <label className="form-label">Book Name</label>
+          <input
+            type="text"
+            name="bookName"
+            className={`form-control ${
+              formik.touched.bookName && formik.errors.bookName
+                ? "is-invalid"
+                : ""
+            }`}
+            placeholder="Nhập tên"
+            value={formik.values.bookName}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.bookName && formik.errors.bookName && (
+            <div className="invalid-feedback">{formik.errors.bookName}</div>
+          )}
+        </div>
+        <div className="col-12 col-md-6">
+          <label className="form-label">Book Image</label>
+          <input
+            type="url"
+            name="bookImage"
+            className={`form-control ${
+              formik.touched.bookImage && formik.errors.bookImage
+                ? "is-invalid"
+                : ""
+            }`}
+            placeholder="https://..."
+            value={formik.values.bookImage}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.bookImage && formik.errors.bookImage && (
+            <div className="invalid-feedback">{formik.errors.bookImage}</div>
+          )}
+        </div>
+
+        <div className="col-12 col-md-6">
+          <label className="form-label">Book Reading Status</label>
+          <select
+            name="bookReadingStatus"
+            className={`form-select ${
+              formik.touched.bookReadingStatus &&
+              formik.errors.bookReadingStatus
+                ? "is-invalid"
+                : ""
+            }`}
+            value={formik.values.bookReadingStatus}
+            onBlur={formik.handleBlur}
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              formik.setFieldValue("bookReadingStatus", v);
+              formik.setFieldValue("isUnread", v === 1);
+            }}
+          >
+            <option value="1">1 – Unread</option>
+            <option value="2">2 – Reading</option>
+            <option value="3">3 – Read</option>
+          </select>
+          {formik.touched.bookReadingStatus &&
+            formik.errors.bookReadingStatus && (
+              <div className="invalid-feedback d-block">
+                {formik.errors.bookReadingStatus}
+              </div>
+            )}
+        </div>
+
+        <div className="col-12 col-md-6 form-check form-switch">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            role="switch"
+            id="switchCheckIsUnread"
+            checked={!!formik.values.isUnread}
+            onChange={() => {}}
+            disabled
+          />
+          <label className="form-check-label" htmlFor="switchCheckIsUnread">
+            Is Unread
+          </label>
+        </div>
+
+        {/* Book Type */}
+        <div className="col-12 col-md-6">
+          <label className="form-label">Book Type</label>
+          <select
+            name="bookType"
+            className={`form-select ${
+              formik.touched.bookType && formik.errors.bookType
+                ? "is-invalid"
+                : ""
+            }`}
+            value={formik.values.bookType}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          >
+            <option value="Data Science">Data Science</option>
+            <option value="Security">Security</option>
+            <option value="Design">Design</option>
+          </select>
+          {formik.touched.bookType && formik.errors.bookType && (
+            <div className="invalid-feedback d-block">
+              {formik.errors.bookType}
+            </div>
+          )}
         </div>
 
         <div className="col-12 d-flex justify-content-end gap-2">
@@ -1250,15 +1637,16 @@ export default function EditArtToolPage() {
             type="button"
             className="btn btn-outline-secondary"
             onClick={() => navigate(-1)}
+            disabled={formik.isSubmitting}
           >
-            Hủy
+            Cancel
           </button>
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={isSubmitting}
+            disabled={formik.isSubmitting}
           >
-            {isSubmitting ? "Đang lưu..." : "Lưu"}
+            {formik.isSubmitting ? "Saving..." : "Save"}
           </button>
         </div>
       </form>
