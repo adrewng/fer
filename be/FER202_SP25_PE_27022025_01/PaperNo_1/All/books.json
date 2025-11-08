@@ -1,0 +1,82 @@
+[
+  {
+    "bookName": "The Data Warehouse Toolkit",
+    "bookImage": "https://cdn.hodgesfiggis.ie/bookjackets/large/9780/7645/9780764567575.jpg",
+    "bookReadingStatus": 1,
+    "isUnread": true,
+    "bookType": "Data Science",
+    "id": "1"
+  },
+  {
+    "bookName": "Data Science from Scratch",
+    "bookImage": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqtjNU8CfnV5T6CUQeUPO1lq1fvEqkdBbHmg&s",
+    "bookReadingStatus": 2,
+    "isUnread": false,
+    "bookType": "Data Science",
+    "id": "2"
+  },
+  {
+    "bookName": "Deep Learning",
+    "bookImage": "https://michaelfullan.ca/wp-content/uploads/2018/01/Deep-Learning-Engage-the-World-Change-the-World-1-e1516045912277.jpg",
+    "bookReadingStatus": 1,
+    "isUnread": true,
+    "bookType": "Data Science",
+    "id": "3"
+  },
+  {
+    "bookName": "Python for Data Analysis",
+    "bookImage": "https://product.hstatic.net/200000239353/product/python_for_data_analysis.-01_e59dbcfb369b46a5a8a6e5700e03cf57.jpg",
+    "bookReadingStatus": 3,
+    "isUnread": false,
+    "bookType": "Data Science",
+    "id": "4"
+  },
+  {
+    "bookName": "The Design of Everyday Things",
+    "bookImage": "https://optimwise.com/wp-content/uploads/2014/09/The-Design-of-Everyday-Things-cover.jpg",
+    "bookReadingStatus": 3,
+    "isUnread": false,
+    "bookType": "Design",
+    "id": "5"
+  },
+  {
+    "bookName": "Don't Make Me Think",
+    "bookImage": "https://m.media-amazon.com/images/I/617rPny7-LL._AC_UF1000,1000_QL80_.jpg",
+    "bookReadingStatus": 2,
+    "isUnread": false,
+    "bookType": "Design",
+    "id": "6"
+  },
+  {
+    "bookName": "Designing Interfaces",
+    "bookImage": "https://m.media-amazon.com/images/I/91E3gRRz5iL.jpg",
+    "bookReadingStatus": 1,
+    "isUnread": true,
+    "bookType": "Design",
+    "id": "7"
+  },
+  {
+    "bookName": "The Web Application Hacker's Handbook",
+    "bookImage": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRA64mdLhrMPZjaLqodXL9VJUFj3EPfAcMEKw&s",
+    "bookReadingStatus": 2,
+    "isUnread": false,
+    "bookType": "Security",
+    "id": "8"
+  },
+  {
+    "bookName": "Security Engineering",
+    "bookImage": "https://m.media-amazon.com/images/I/81NQUlXAuqL._AC_UF1000,1000_QL80_.jpg",
+    "bookReadingStatus": 3,
+    "isUnread": false,
+    "bookType": "Security",
+    "id": "9"
+  },
+  {
+    "bookName": "The Art of Deception",
+    "bookImage": "https://m.media-amazon.com/images/I/71Kr0Y+vLtL._AC_UF1000,1000_QL80_.jpg",
+    "bookReadingStatus": 1,
+    "isUnread": true,
+    "bookType": "Security",
+    "id": "10"
+  }
+]
