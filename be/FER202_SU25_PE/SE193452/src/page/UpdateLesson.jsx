@@ -13,17 +13,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import lessonApi from "../api/lesson.api";
 import lessonSchema from "../schema/lesson.schema";
 export default function UpdateLesson() {
-  const navigate = useNavigate();
-  const { id } = useParams();
   const [item, setItem] = useState([]);
   const [isLoading, setLoading] = useState(false);
   const [errors, setErrors] = useState("");
-  const formik = useFormik({
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const formilk = useFormik({
     initialValues: {
-      lessonTitle: "",
       lessonImage: "",
+      lessonTitle: "",
+      estimatedTime: 1,
       level: "N5",
-      estimatedTime: 0,
       isCompleted: false,
     },
     validationSchema: lessonSchema,
@@ -34,152 +34,149 @@ export default function UpdateLesson() {
           isCompleted: Boolean(value.isCompleted),
           estimatedTime: Number(value.estimatedTime),
         };
-        await lessonApi.updateItem(item.id, payload);
+        await lessonApi.updateLesson(item.id, payload);
         navigate("/se193452/all-lessons");
       } finally {
         setSubmitting(false);
       }
     },
   });
-  const fetchApi = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
       setErrors("");
-      const res = await lessonApi.getItemDetail(id);
-      formik.setValues({
+      const res = await lessonApi.getDetail(id);
+      formilk.setValues({
+        lessonImage: res.data.lessonImage,
         lessonTitle: res.data.lessonTitle,
         estimatedTime: Number(res.data.estimatedTime),
-        isCompleted: Boolean(res.data.isCompleted),
         level: res.data.level,
-        lessonImage: res.data.lessonImage,
+        isCompleted: Boolean(res.data.isCompleted),
       });
       setItem(res.data);
-    } catch (err) {
-      setErrors(
-        err?.response?.data?.message || err.message || "Failed to fetch lessons"
-      );
+    } catch (e) {
+      setErrors(e?.response?.data?.message || e?.message);
     } finally {
       setLoading(false);
     }
   };
   useEffect(() => {
-    fetchApi();
-  }, [id]);
+    fetchData();
+  }, []);
 
   return (
     <Container>
       {isLoading && (
-        <div className="d-flex align-align-items-center gap-3">
+        <div className="d-flex align-item-center justify-content-center gap-3">
           <Spinner animation="border" role="status" />
-          <span className="text-muted">Loading...</span>
+          <span>Loading...</span>
         </div>
       )}
       {!isLoading && errors && (
-        <Alert
-          variant="danger"
-          className="d-flex justify-content-between align-items-center"
-        >
-          <div>{errors}</div>
-          <Button variant="light" size="sm" onClick={fetchApi}>
-            Try Again!
-          </Button>
+        <Alert variant="danger">
+          <span>{errors}</span>
         </Alert>
       )}
       {!isLoading && item && (
         <Row>
           <Col>
-            <Form onSubmit={formik.handleSubmit}>
-              <Form.Group controlId="lessontitle">
+            <Form onSubmit={formilk.handleSubmit}>
+              <Form.Group controlId="lessonTitle">
                 <Form.Label>Lesson Title</Form.Label>
                 <Form.Control
                   type="text"
                   name="lessonTitle"
-                  value={formik.values.lessonTitle}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
+                  value={formilk.values.lessonTitle}
+                  onChange={formilk.handleChange}
+                  onBlur={formilk.handleBlur}
                   isInvalid={
-                    formik.touched.lessonTitle && !!formik.errors.lessonTitle
+                    formilk.touched.lessonTitle && !!formilk.errors.lessonTitle
                   }
                 />
                 <Form.Control.Feedback type="invalid">
-                  {formik.errors.lessonImage}
+                  {formilk.errors.lessonTitle}
                 </Form.Control.Feedback>
               </Form.Group>
+
               <Form.Group controlId="lessonImage">
                 <Form.Label>Lesson Image</Form.Label>
                 <Form.Control
-                  type="text"
+                  type="url"
                   name="lessonImage"
-                  value={formik.values.lessonImage}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
+                  value={formilk.values.lessonImage}
+                  onChange={formilk.handleChange}
+                  onBlur={formilk.handleBlur}
                   isInvalid={
-                    formik.touched.lessonImage && formik.errors.lessonImage
+                    formilk.touched.lessonImage && !!formilk.errors.lessonImage
                   }
                 />
                 <Form.Control.Feedback type="invalid">
-                  {formik.errors.lessonImage}
+                  {formilk.errors.lessonImage}
                 </Form.Control.Feedback>
               </Form.Group>
+
               <Form.Group controlId="estimatedTime">
                 <Form.Label>Lesson Estimated Time</Form.Label>
                 <Form.Control
                   type="number"
                   name="estimatedTime"
-                  value={formik.values.estimatedTime}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
+                  value={formilk.values.estimatedTime}
+                  onChange={formilk.handleChange}
+                  onBlur={formilk.handleBlur}
                   isInvalid={
-                    formik.touched.estimatedTime && formik.errors.estimatedTime
+                    formilk.touched.estimatedTime &&
+                    !!formilk.errors.estimatedTime
                   }
                 />
                 <Form.Control.Feedback type="invalid">
-                  {formik.errors.estimatedTime}
+                  {formilk.errors.estimatedTime}
                 </Form.Control.Feedback>
               </Form.Group>
+
               <Form.Group controlId="level">
-                <Form.Label>Lesson Level</Form.Label>
+                <Form.Label>Lesson level</Form.Label>
                 <Form.Select
                   name="level"
-                  value={formik.values.level}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  isInvalid={formik.touched.level && !!formik.errors.level}
+                  value={formilk.values.level}
+                  onChange={formilk.handleChange}
+                  onBlur={formilk.handleBlur}
+                  isInvalid={formilk.touched.level && !!formilk.errors.level}
                 >
                   <option value={"N1"}>N1</option>
                   <option value={"N2"}>N2</option>
                   <option value={"N3"}>N3</option>
                   <option value={"N4"}>N4</option>
-                  <option value={"N5"}>N5</option>
+                  <option value="N5">N5</option>
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">
-                  {formik.errors.level}
+                  {formilk.errors.level}
                 </Form.Control.Feedback>
               </Form.Group>
+
               <Form.Group controlId="isCompleted">
-                <Form.Label>Completed</Form.Label>
+                <Form.Label>Lesson Is Complted</Form.Label>
                 <Form.Check
                   type="switch"
                   name="isCompleted"
-                  checked={!!formik.values.isCompleted}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
+                  checked={!!formilk.values.isCompleted}
+                  onChange={formilk.handleChange}
+                  onBlur={formilk.handleBlur}
                   isInvalid={
-                    formik.touched.isCompleted && !!formik.errors.isCompleted
+                    formilk.touched.isCompleted && !!formilk.errors.isCompleted
                   }
                 />
-
                 <Form.Control.Feedback type="invalid">
-                  {formik.errors.isCompleted}
+                  {formilk.errors.isCompleted}
                 </Form.Control.Feedback>
               </Form.Group>
-              <Form.Group>
+
+              <Form.Group controlId="isCompleted">
                 <Button
                   type="submit"
                   variant="primary"
-                  disabled={formik.isSubmitting}
+                  disabled={formilk.isSubmitting}
                 >
-                  {formik.isSubmitting ? "Saving..." : "Save"}
+                  {formilk.isSubmitting ? "Creating..." : "Create"}
                 </Button>
               </Form.Group>
             </Form>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  Badge,
+  Alert,
   Button,
   Card,
   Col,
@@ -11,95 +11,75 @@ import {
 } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import lessonApi from "../api/lesson.api";
-import { formatMinute } from "../util/util";
-
 export default function LessonDetail() {
-  const { id } = useParams();
   const [item, setItem] = useState([]);
   const [isLoading, setLoading] = useState(false);
   const [errors, setErrors] = useState("");
-
-  const fetchApi = async () => {
+  const { id } = useParams();
+  const fetchData = async () => {
     try {
       setLoading(true);
       setErrors("");
-      const res = await lessonApi.getItemDetail(id);
+      const res = await lessonApi.getDetail(id);
       setItem(res.data);
-    } catch (err) {
-      setErrors(
-        err?.response?.data?.message || err.message || "Failed to fetch lessons"
-      );
+    } catch (e) {
+      setErrors(e?.response?.data?.message || e?.message);
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
-    fetchApi();
-  }, [id]);
-
+    fetchData();
+  }, []);
   return (
-    <Container className="py-4">
-      <div className="d-flex justify-content-between align-items-center">
+    <Container>
+      <div className="d-flex align-item-center justify-content-center mb-3">
         <h5>Lesson Detail</h5>
       </div>
       {isLoading && (
-        <div className="d-flex align-align-items-center gap-3">
+        <div className="d-flex align-item-center justify-content-center gap-3">
           <Spinner animation="border" role="status" />
-          <span className="text-muted">Loading...</span>
+          <span>Loading...</span>
         </div>
       )}
       {!isLoading && errors && (
-        <Alert
-          variant="danger"
-          className="d-flex justify-content-between align-items-center"
-        >
-          <div>{errors}</div>
-          <Button variant="light" size="sm" onClick={fetchApi}>
-            Try Again!
-          </Button>
+        <Alert variant="danger">
+          <span>{errors}</span>
         </Alert>
       )}
       {!isLoading && item && (
         <>
-          <div className="d-flex justify-content-end align-items-center">
-            <Button as={Link} size="sm" to={-1} variant="outline-secondary">
+          <div className="f-flex justify-content-end text-end">
+            <Button as={Link} size="sm" variant="secondary" to={-1}>
               Back
             </Button>
           </div>
           <Row className="g-4 mt-3">
-            <Col xs={12} md={5} lg={4}>
-              <Card className="h-25 w-75 m-auto">
+            <Col sx={12} sm={5} lg={4}>
+              <Card className="w-50 m-auto">
                 <Card.Img
                   src={item.lessonImage}
                   alt={item.lessonTitle}
-                  className="object-fit-cover"
+                  className="w-100 h-100 object-fit-cover"
                 />
               </Card>
             </Col>
-
-            <Col xs={12} md={7} lg={8}>
+            <Col sx={12} sm={7} lg={8}>
               <Card>
                 <Card.Body>
-                  <h2 className="text-muted">{item.lessonTitle}</h2>
+                  <h2>{item.lessonTitle}</h2>
                   <ListGroup>
                     <ListGroup.Item className="d-flex justify-content-between align-items-center">
                       <span>Level:</span>
                       <span>{item.level}</span>
                     </ListGroup.Item>
                     <ListGroup.Item className="d-flex justify-content-between align-items-center">
-                      <span>Is Completed:</span>
-                      <Badge
-                        bg={item.isCompleted ? "secondary" : "light"}
-                        text={item.isCompleted ? undefined : "dark"}
-                        className={!item.isCompleted ? "border" : ""}
-                      >
-                        {item.isCompleted ? "True" : "False"}
-                      </Badge>
+                      <span>Completed: </span>
+                      <span>{item.isCompleted ? "True" : "False"}</span>
                     </ListGroup.Item>
                     <ListGroup.Item className="d-flex justify-content-between align-items-center">
-                      <span>Estimated Time:</span>
-                      <span>{formatMinute(item.estimatedTime)}</span>
+                      <span>Lesson Estimated Time: </span>
+                      <span>{item.estimatedTime}</span>
                     </ListGroup.Item>
                   </ListGroup>
                 </Card.Body>

@@ -1,30 +1,20 @@
 import { Toast, ToastContainer } from "react-bootstrap";
 
-export default function AppToast({
-  show,
-  msg,
-  bg = "success",
-  title = "Notice",
-  position = "top-end",
-  delay = 2500,
-  onClose,
-}) {
+export default function AppToast({ msg, show, delay = 2500, onClose }) {
   return (
-    <ToastContainer position={position} className="p-3">
+    <ToastContainer position={"top-end"} className="p-3">
       <Toast
-        bg={bg}
         show={show}
         autohide={!!delay}
-        delay={delay}
         onClose={onClose}
+        delay={delay}
+        bg={"secondary"}
       >
-        <Toast.Header closeButton>
-          <strong className="me-auto">{title}</strong>
+        <Toast.Header>
+          <strong className="me-auto">Notification</strong>
           <small>now</small>
         </Toast.Header>
-        <Toast.Body className={bg !== "light" ? "text-white" : ""}>
-          {msg}
-        </Toast.Body>
+        <Toast.Body>{msg}</Toast.Body>
       </Toast>
     </ToastContainer>
   );

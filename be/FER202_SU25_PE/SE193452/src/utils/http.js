@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const URL = import.meta.env.VITE_URL_APP;
+const URL = import.meta.env.VITE_APP_URL;
 class Http {
   instance;
   constructor() {
@@ -11,5 +11,6 @@ class Http {
     });
   }
 }
+
 const http = new Http().instance;
 export default http;

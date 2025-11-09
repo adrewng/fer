@@ -1,20 +1,20 @@
 import { Container, Nav, Navbar } from "react-bootstrap";
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function NavBar() {
   return (
-    <Navbar expand="lg" className="bg-body-tertiary" data-bs-theme="light">
+    <Navbar expand="lg" className="bg-body-tertiary">
       <Container>
-        <Navbar.Toggle aria-controls="navMain" />
-        <Navbar.Collapse id="navMain">
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={NavLink} to="/" end>
+            <Nav.Link as={Link} to={"/"}>
               Home
             </Nav.Link>
-            <Nav.Link as={NavLink} to="/se193452/all-lessons">
+            <Nav.Link as={Link} to={"/se193452/all-lessons"}>
               All Lessons
             </Nav.Link>
-            <Nav.Link as={NavLink} to="/se193452/completed-lessons">
+            <Nav.Link as={Link} to={"/se193452/completed-lessons"}>
               Completed Lessons
             </Nav.Link>
           </Nav>

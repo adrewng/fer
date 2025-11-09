@@ -1,21 +1,19 @@
-import http from "../util/http.js";
-
-export const lessonApi = {
+import http from "../utils/http.js";
+const lessonApi = {
   getAll() {
     return http.get("/");
   },
-  getItemDetail(id) {
+  getDetail(id) {
     return http.get(`/${id}`);
   },
-  addItem(data) {
-    return http.post("/", data);
+  createLesson(body) {
+    return http.post("/", body);
   },
-  updateItem(id, data) {
-    return http.put(`/${id}`, data);
+  updateLesson(id, body) {
+    return http.put(`/${id}`, body);
   },
-  deleteItem(id) {
+  deleteLesson(id) {
     return http.delete(`/${id}`);
   },
 };
-
 export default lessonApi;

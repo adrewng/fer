@@ -3,93 +3,81 @@ import { Alert, Button, Container, Spinner, Table } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import lessonApi from "../api/lesson.api";
 import AppToast from "../components/AppToast";
-import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
-import { formatMinute } from "../util/util";
+import ConfirmDelete from "../components/ConfirmDelete";
+import { formatMinute } from "../utils/util";
 export default function AllLesson() {
   const [items, setItems] = useState([]);
   const [isLoading, setLoading] = useState(false);
   const [errors, setErrors] = useState("");
-  const [showModalDelete, setShowModalDelete] = useState(false);
   const [lesson, setLesson] = useState(null);
-  const [toast, setToast] = useState({ show: false, msg: "", bg: "success" });
+  const [modalDelete, setModalDelete] = useState(false);
+  const [toast, setToast] = useState({ show: false, msg: "" });
   const navigate = useNavigate();
-
-  const handleDelete = async () => {
-    try {
-      await lessonApi.deleteItem(lesson.id);
-      fetchApi();
-      setShowModalDelete(false);
-      setLesson(null);
-      setToast({ show: true, msg: "Deleted successfully!", bg: "success" });
-    } catch (err) {
-      setErrors(err?.response?.data?.message || err.message);
-    }
-  };
-  const fetchApi = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
       setErrors("");
       const res = await lessonApi.getAll();
-      const dataArray = Array.isArray(res.data) ? res.data : [];
-      setItems(dataArray.sort((a, b) => Number(b.id) - Number(a.id)));
-    } catch (err) {
-      setErrors(
-        err?.response?.data?.message || err.message || "Failed to fetch lessons"
-      );
+      setItems(res.data.sort((a, b) => Number(b.id) - Number(a.id)));
+    } catch (e) {
+      setErrors(e?.response?.data?.message || e?.message);
     } finally {
       setLoading(false);
     }
   };
   useEffect(() => {
-    fetchApi();
+    fetchData();
   }, []);
+  const handleDelete = async () => {
+    try {
+      await lessonApi.deleteLesson(lesson.id);
+      fetchData();
+      setModalDelete(false);
+      setLesson(null);
+      setToast({ show: true, msg: "Deleted successfully!" });
+      // eslint-disable-next-line no-unused-vars
+    } catch (_) {
+      setToast({ show: true, msg: "Deleted not successfully!" });
+    }
+  };
   return (
     <>
-      <ConfirmDeleteModal
-        show={showModalDelete}
-        onHide={() => {
-          setShowModalDelete(false);
-          setLesson(null);
-        }}
-        handleDelete={handleDelete}
+      <ConfirmDelete
+        show={modalDelete}
+        onHide={() => setModalDelete(false)}
         itemName={lesson?.lessonTitle}
+        handleDelete={handleDelete}
       />
-      <Container className="py-4">
-        <div className="d-flex justify-content-between align-items-center">
-          <h5>Lessons List</h5>
+      <Container>
+        <div className="d-flex align-items-center justify-content-between mb-3">
+          <h5>Lesson List</h5>
           <Button
-            as={Link}
-            size="sm"
             variant="primary"
-            to={"/se193452/create-lesson"}
+            size="md"
+            as={Link}
+            to={"/se193452/add-lesson"}
           >
-            Create New Lesson
+            Add new Lesson
           </Button>
         </div>
         {isLoading && (
-          <div className="d-flex align-items-center gap-3">
+          <div className="d-flex align-items-center justify-content-center gap-3">
             <Spinner animation="border" role="status" />
-            <span className="text-muted">Loading...</span>
+            <span>Loading...</span>
           </div>
         )}
         {!isLoading && errors && (
-          <Alert
-            variant="danger"
-            className="d-flex justify-content-between align-items-center"
-          >
-            <div>{errors}</div>
-            <Button variant="light" size="sm" onClick={fetchApi}>
-              Try Again!
-            </Button>
+          <Alert variant="danger">
+            <span>{errors}</span>
           </Alert>
         )}
         {!isLoading && items && (
           <Table striped hover>
-            <thead>
+            <thead className="table-light">
               <tr>
                 <th colSpan={5}>Lesson Title</th>
                 <th colSpan={2}>Level</th>
-                <th colSpan={2}>Estimated Time</th>
+                <th colSpan={2}>Lesson Estimated Time</th>
                 <th colSpan={4}>Actions</th>
               </tr>
             </thead>
@@ -98,32 +86,30 @@ export default function AllLesson() {
                 <tr
                   key={item.id}
                   role="button"
-                  onClick={() => navigate(`/se193452/lesson/${item.id}`)}
-                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    navigate(`/se193452/lesson/${item.id}`);
+                  }}
                 >
                   <td colSpan={5}>{item.lessonTitle}</td>
                   <td colSpan={2}>{item.level}</td>
-                  <td colSpan={2}>{formatMinute(item.estimatedTime)}</td>
+                  <td colSpan={2}>{formatMinute(item.estimatedTime) ?? 0}</td>
                   <td colSpan={4}>
                     <Button
-                      variant="warning"
-                      size="sm"
                       as={Link}
-                      className="ms-1"
-                      to={`/se193452/update-lesson/${item.id}`}
+                      to={`/se19342/update-lesson/${item.id}`}
                       onClick={(e) => e.stopPropagation()}
+                      variant="warning"
                     >
                       Edit
                     </Button>
                     <Button
-                      variant="danger"
-                      size="sm"
-                      className="ms-1"
+                      className="ms-2"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setShowModalDelete(true);
+                        setModalDelete(true);
                         setLesson(item);
                       }}
+                      variant="danger"
                     >
                       Delete
                     </Button>

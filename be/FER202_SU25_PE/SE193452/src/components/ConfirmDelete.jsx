@@ -1,19 +1,19 @@
 import { Button, Modal } from "react-bootstrap";
 
-export default function ConfirmDeleteModal({
+export default function ConfirmDelete({
   show,
   onHide,
-  handleDelete,
   itemName,
+  handleDelete,
 }) {
   return (
-    <Modal show={show} onHide={onHide} centered backdrop="static" keyboard>
+    <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title as="h6">Confirm Delete</Modal.Title>
+        <Modal.Title>Modal title</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
-        Are you sure you want to delete{itemName ? `: ${itemName}` : ""}?
+        <p>Are you sure you want to delete{itemName ? `: ${itemName}` : ""}?</p>
       </Modal.Body>
 
       <Modal.Footer>
