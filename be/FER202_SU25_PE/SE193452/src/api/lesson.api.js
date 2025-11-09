@@ -1,4 +1,5 @@
 import http from "../util/http.js";
+
 export const lessonApi = {
   getAll() {
     return http.get("/");

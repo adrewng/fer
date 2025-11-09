@@ -1,6 +1,6 @@
-export const formatMinute = (seconds) => {
-  const n = Number(seconds);
-  if (!Number.isFinite(n)) return "";
-  const min = Math.floor(n / 60);
-  return `${min.toLocaleString("en-US")} minutes`;
+export const formatMinute = (s) => {
+  const tmp = Number(s);
+  if (!isFinite(s)) return "";
+  const miniutes = Math.floor(tmp / 60);
+  return `${miniutes.toLocaleString("en-US")} minutes`;
 };

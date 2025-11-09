@@ -1,47 +1,25 @@
+import { Container, Nav, Navbar } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 
 export default function NavBar() {
   return (
-    <nav className="navbar navbar-expand-lg bg-body-tertiary">
-      <div className="container">
-        <div className="collapse navbar-collapse" id="navMain">
-          <ul className="navbar-nav me-auto">
-            <li className="nav-item">
-              <NavLink
-                to="/"
-                end
-                className={({ isActive }) =>
-                  `nav-link ${isActive ? "active" : ""}`
-                }
-              >
-                Home
-              </NavLink>
-            </li>
-
-            <li className="nav-item">
-              <NavLink
-                to="/se193452/all-lessons"
-                className={({ isActive }) =>
-                  `nav-link ${isActive ? "active" : ""}`
-                }
-              >
-                All Lessons
-              </NavLink>
-            </li>
-
-            <li className="nav-item">
-              <NavLink
-                to="/se193452/comleted-lessons"
-                className={({ isActive }) =>
-                  `nav-link ${isActive ? "active" : ""}`
-                }
-              >
-                Completed Lessons
-              </NavLink>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+    <Navbar expand="lg" className="bg-body-tertiary" data-bs-theme="light">
+      <Container>
+        <Navbar.Toggle aria-controls="navMain" />
+        <Navbar.Collapse id="navMain">
+          <Nav className="me-auto">
+            <Nav.Link as={NavLink} to="/" end>
+              Home
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/se193452/all-lessons">
+              All Lessons
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/se193452/completed-lessons">
+              Completed Lessons
+            </Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
   );
 }

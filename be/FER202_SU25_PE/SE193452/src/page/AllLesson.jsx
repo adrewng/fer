@@ -1,141 +1,144 @@
 import { useEffect, useState } from "react";
+import { Alert, Button, Container, Spinner, Table } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import lessonApi from "../api/lesson.api";
-import ConfirmDeleteModal from "../components/ComfirmDeleteModal";
-import Toast from "../components/Toast";
+import AppToast from "../components/AppToast";
+import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 import { formatMinute } from "../util/util";
 export default function AllLesson() {
   const [items, setItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [isLoading, setLoading] = useState(false);
+  const [errors, setErrors] = useState("");
   const [showModalDelete, setShowModalDelete] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [showToast, setShowToast] = useState(false);
-
+  const [lesson, setLesson] = useState(null);
+  const [toast, setToast] = useState({ show: false, msg: "", bg: "success" });
   const navigate = useNavigate();
-
-  const fetchItems = async () => {
-    try {
-      setIsLoading(true);
-      setError("");
-      const res = await lessonApi.getAll();
-      setItems(res.data.sort((a, b) => Number(b.id) - Number(a.id)));
-    } catch (err) {
-      setError(err?.response?.data?.message || err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchItems();
-  }, []);
 
   const handleDelete = async () => {
     try {
-      await lessonApi.deleteItem(selectedItem.id);
-      fetchItems();
+      await lessonApi.deleteItem(lesson.id);
+      fetchApi();
       setShowModalDelete(false);
-      setSelectedItem(null);
-      setShowToast(true);
+      setLesson(null);
+      setToast({ show: true, msg: "Deleted successfully!", bg: "success" });
     } catch (err) {
-      setError(err?.response?.data?.message || err.message);
+      setErrors(err?.response?.data?.message || err.message);
     }
   };
-
+  const fetchApi = async () => {
+    try {
+      setLoading(true);
+      setErrors("");
+      const res = await lessonApi.getAll();
+      const dataArray = Array.isArray(res.data) ? res.data : [];
+      setItems(dataArray.sort((a, b) => Number(b.id) - Number(a.id)));
+    } catch (err) {
+      setErrors(
+        err?.response?.data?.message || err.message || "Failed to fetch lessons"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchApi();
+  }, []);
   return (
     <>
       <ConfirmDeleteModal
         show={showModalDelete}
         onHide={() => {
           setShowModalDelete(false);
-          setSelectedItem(null);
+          setLesson(null);
         }}
         handleDelete={handleDelete}
-        itemName={selectedItem?.lessonTitle}
+        itemName={lesson?.lessonTitle}
       />
-      <Toast
-        show={showToast}
-        message="Item deleted successfully!"
-        onClose={() => setShowToast(false)}
-      />
-
-      <div className="container py-4">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h5 className="mb-0">Danh sách</h5>
-          <div className="d-flex gap-2">
-            <Link to="/addLesson" className="btn btn-primary btn-sm">
-              Add New Lesson
-            </Link>
-          </div>
+      <Container className="py-4">
+        <div className="d-flex justify-content-between align-items-center">
+          <h5>Lessons List</h5>
+          <Button
+            as={Link}
+            size="sm"
+            variant="primary"
+            to={"/se193452/create-lesson"}
+          >
+            Create New Lesson
+          </Button>
         </div>
-
         {isLoading && (
           <div className="d-flex align-items-center gap-3">
-            <div className="spinner-border" role="status" />
-            <span className="text-muted">Loading…</span>
+            <Spinner animation="border" role="status" />
+            <span className="text-muted">Loading...</span>
           </div>
         )}
-
-        {error && (
-          <div className="alert alert-danger d-flex justify-content-between align-items-center">
-            <div>{error}</div>
-            <button onClick={fetchItems} className="btn btn-light btn-sm">
-              Fetch Again
-            </button>
-          </div>
+        {!isLoading && errors && (
+          <Alert
+            variant="danger"
+            className="d-flex justify-content-between align-items-center"
+          >
+            <div>{errors}</div>
+            <Button variant="light" size="sm" onClick={fetchApi}>
+              Try Again!
+            </Button>
+          </Alert>
         )}
-
         {!isLoading && items && (
-          <div className="table-responsive shadow-sm rounded-3">
-            <table className="table table-hover align-middle mb-0">
-              <thead className="table-light">
-                <tr>
-                  <th style={{ width: "450px" }}>Lesson Title</th>
-                  <th>Level</th>
-                  <th>Estimated Time</th>
-                  <th className="text-end">Actions</th>
+          <Table striped hover>
+            <thead>
+              <tr>
+                <th colSpan={5}>Lesson Title</th>
+                <th colSpan={2}>Level</th>
+                <th colSpan={2}>Estimated Time</th>
+                <th colSpan={4}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => (
+                <tr
+                  key={item.id}
+                  role="button"
+                  onClick={() => navigate(`/se193452/lesson/${item.id}`)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <td colSpan={5}>{item.lessonTitle}</td>
+                  <td colSpan={2}>{item.level}</td>
+                  <td colSpan={2}>{formatMinute(item.estimatedTime)}</td>
+                  <td colSpan={4}>
+                    <Button
+                      variant="warning"
+                      size="sm"
+                      as={Link}
+                      className="ms-1"
+                      to={`/se193452/update-lesson/${item.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      className="ms-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowModalDelete(true);
+                        setLesson(item);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => (
-                  <tr
-                    key={item.id}
-                    role="button"
-                    className="align-middle"
-                    onClick={() => navigate(`/se193452/lessons/${item.id}`)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <td>{item.lessonTitle}</td>
-                    <td>{item.level}</td>
-                    <td>{formatMinute(item.estimatedTime) ?? 0}</td>
-
-                    <td className="text-end">
-                      <Link
-                        to={`/updateLesson/${item.id}`}
-                        className="btn btn-warning btn-sm ms-1"
-                        onClick={(e) => e.stopPropagation()} // ← chặn click lan lên <tr>
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        className="btn btn-danger btn-sm ms-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedItem(item);
-                          setShowModalDelete(true);
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </Table>
         )}
-      </div>
+      </Container>
+      <AppToast
+        show={toast.show}
+        msg={toast.msg}
+        onClose={() => setToast((t) => ({ ...t, show: false }))}
+      />
     </>
   );
 }
